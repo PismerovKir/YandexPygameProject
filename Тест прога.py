@@ -33,7 +33,7 @@ class SpaceShip(pygame.sprite.Sprite):
         self.rect.x += self.speedX
         if self.rect.right > WIDTH:
             self.rect.right = WIDTH
-        if self.rect.left < 10:
+        if self.rect.left < 0:
             self.rect.left = 0
 
 
