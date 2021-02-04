@@ -1,5 +1,6 @@
 import pygame
 from os import path
+import sys
 
 WIDTH = 1000
 HEIGHT = 800
@@ -18,6 +19,7 @@ class SpaceShip(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((80, 90))
         self.image = pygame.image.load(path.join("korabl1.png")).convert()
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 20
@@ -36,7 +38,8 @@ class SpaceShip(pygame.sprite.Sprite):
         if self.rect.left < 0:
             self.rect.left = 0
 
-
+background = pygame.image.load(path.join("fon.png")).convert()
+background_rect = background.get_rect()
 
 all_sprites = pygame.sprite.Group()
 spaceship = SpaceShip()
@@ -52,6 +55,7 @@ while running:
 
     all_sprites.update()
     screen.fill(BLACK)
+    screen.blit(background, background_rect)
     all_sprites.draw(screen)
     pygame.display.flip()
 
