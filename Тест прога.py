@@ -99,11 +99,11 @@ spaceship = SpaceShip()
 all_sprites.add(spaceship)
 bullets = pygame.sprite.Group()
 
-background = load_image('fon.png')
-background2 = load_image('fon.png')
+background = load_image('fon3.png')
+background2 = load_image('fon3.png')
 background_rect = background.get_rect()
 background_rect2 = background.get_rect()
-background_rect2.x =  WIDTH
+background_rect2.x = WIDTH
 
 running = True
 while running:
