@@ -3,16 +3,20 @@ import os
 import sys
 import random
 
+pygame.init()
 
 WIDTH = 1000
 HEIGHT = 800
 FPS = 100
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
+SCORE = 0
+
 
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
+
 
 def load_image(name, color_key=None):
     fullname = os.path.join('data', name)
@@ -106,6 +110,19 @@ class Alien(pygame.sprite.Sprite):
             self.rect.y = random.randrange(-100, -50)
             self.speedy = random.randrange(1, 4)
 
+def ShowScore():
+    font = pygame.font.Font(None, 50)
+    text = font.render(f"{SCORE}", True, (255, 255, 255))
+    text_x =  text.get_width()
+    text_y = text.get_height()
+    text_w = text.get_width()
+    text_h = text.get_height()
+    screen.blit(text, (0, 0))
+    # pygame.draw.rect(screen, (255, 255, 255), (text_x - 10, text_y - 10,
+    #                                        text_w + 20, text_h + 20), 1)
+
+
+
 
 # background = pygame.image.load(os.path.join("data/fon.png")).convert()
 # background_rect = background.get_rect()
@@ -132,6 +149,8 @@ for i in range(2):
 running = True
 while running:
     clock.tick(FPS)
+
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -152,6 +171,8 @@ while running:
     screen.blit(background, background_rect)
     screen.blit(background2, background_rect2)
     all_sprites.draw(screen)
+    SCORE += 1
+    ShowScore()
     pygame.display.flip()
 
 pygame.quit()
