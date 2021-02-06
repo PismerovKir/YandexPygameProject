@@ -5,7 +5,7 @@ import random
 
 pygame.init()
 
-WIDTH = 1000
+WIDTH = 1200
 HEIGHT = 800
 FPS = 100
 BLACK = (0, 0, 0)
@@ -60,7 +60,7 @@ class SpaceShip(pygame.sprite.Sprite):
             self.rect.y += 6
 
         if k[pygame.K_SPACE]:
-            bul = LaserBulletLong(self.rect.right, self.rect.top + 26)
+            bul = LaserBulletLong(self.rect.right - 20, self.rect.top + 50)
             all_sprites.add(bul)
             bullets.add(bul)
 
@@ -122,6 +122,57 @@ def ShowScore():
     #                                        text_w + 20, text_h + 20), 1)
 
 
+def PauseGame():
+    runningPause = True
+    while runningPause:
+        clock.tick(FPS)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                runningPause = False
+                return True
+            if event.type == pygame.KEYDOWN:
+                if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                    return
+
+
+
+
+
+def Game():
+    global SCORE
+    runningGame = True
+    while runningGame:
+        clock.tick(FPS)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+            if event.type == pygame.KEYDOWN:
+                if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                    if PauseGame():
+                        return
+
+
+        if background_rect.right < 0:
+            background_rect.x = WIDTH
+
+        if background_rect2.right < 0:
+            background_rect2.x = WIDTH
+
+        background_rect.x -= 5
+        background_rect2.x -= 5
+
+        all_sprites.update()
+        screen.fill(BLACK)
+        screen.blit(background, background_rect)
+        screen.blit(background2, background_rect2)
+        all_sprites.draw(screen)
+        SCORE += 1
+        ShowScore()
+        pygame.display.flip()
+
+
 
 
 # background = pygame.image.load(os.path.join("data/fon.png")).convert()
@@ -146,33 +197,6 @@ for i in range(2):
     all_sprites.add(alien)
     aliens.add(alien)
 
-running = True
-while running:
-    clock.tick(FPS)
-
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    if background_rect.right < 0:
-        background_rect.x = WIDTH
-
-    if background_rect2.right < 0:
-        background_rect2.x = WIDTH
-
-    background_rect.x -= 5
-    background_rect2.x -= 5
-
-
-
-    all_sprites.update()
-    screen.fill(BLACK)
-    screen.blit(background, background_rect)
-    screen.blit(background2, background_rect2)
-    all_sprites.draw(screen)
-    SCORE += 1
-    ShowScore()
-    pygame.display.flip()
+Game()
 
 pygame.quit()
