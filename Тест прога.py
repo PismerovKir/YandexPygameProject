@@ -1,6 +1,7 @@
 import pygame
 import os
 import sys
+import random
 
 
 WIDTH = 1000
@@ -87,8 +88,23 @@ class LaserBulletLong(pygame.sprite.Sprite):
             self.kill()
         self.rect.x += 10
 
+class Alien(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = load_image('alien.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randrange(WIDTH - self.rect.width)
+        self.rect.y = random.randrange(-100, -40)
+        self.speedy = random.randrange(1, 8)
+        self.speedx = random.randrange(-3, 3)
 
-
+    def update(self):
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+        if self.rect.left < -200 or self.rect.right > HEIGHT + -200:
+            self.rect.x = random.randrange(WIDTH - self.rect.width)
+            self.rect.y = random.randrange(-100, -50)
+            self.speedy = random.randrange(1, 4)
 
 
 # background = pygame.image.load(os.path.join("data/fon.png")).convert()
@@ -104,6 +120,14 @@ background2 = load_image('fon3.png')
 background_rect = background.get_rect()
 background_rect2 = background.get_rect()
 background_rect2.x = WIDTH
+
+aliens = pygame.sprite.Group()
+all_sprites.add(spaceship)
+
+for i in range(2):
+    alien = Alien()
+    all_sprites.add(alien)
+    aliens.add(alien)
 
 running = True
 while running:
