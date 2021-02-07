@@ -174,6 +174,7 @@ class Alien(pygame.sprite.Sprite):
             self.speedy = random.randrange(1, 4)
 
 
+
 class Meteor(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
