@@ -13,7 +13,7 @@ RED = (255, 0, 0)
 SCORE = 0
 LEVEL_DUR = 0
 LEVEL_DMG = 0
-LEVEL_SPEED = 0
+LEVEL_SPD = 0
 PREV_BEST = 0
 MONEY = 0
 
@@ -39,10 +39,10 @@ def load_image(name, color_key=None):
 def LoadData():
     file = open('data/gamedata.txt', 'r')
     data = file.readlines()
-    global LEVEL_DMG, LEVEL_SPEED, LEVEL_DUR, MONEY, PREV_BEST
+    global LEVEL_DMG, LEVEL_SPD, LEVEL_DUR, MONEY, PREV_BEST
     PREV_BEST = int(data[0])
     MONEY = int(data[1])
-    LEVEL_DUR, LEVEL_DMG, LEVEL_SPEED = int(data[2]), int(data[3]), int(data[4])
+    LEVEL_DUR, LEVEL_DMG, LEVEL_SPD = int(data[2]), int(data[3]), int(data[4])
 
 
 
@@ -51,7 +51,7 @@ class SpaceShip(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
-        global LEVEL_DMG, LEVEL_SPEED, LEVEL_SPEED
+        global LEVEL_DMG, LEVEL_SPD, LEVEL_SPEED
 
         self.image = load_image('korabl.png')
         self.image.set_colorkey(BLACK)
@@ -59,7 +59,7 @@ class SpaceShip(pygame.sprite.Sprite):
         self.rect.x = 0
         self.rect.centery = HEIGHT / 2
 
-        self.speed = 4 + LEVEL_SPEED
+        self.speed = 4 + LEVEL_SPD
         self.health = 5 + LEVEL_DUR
         self.prev_shot = 0
         self.mask = pygame.mask.from_surface(self.image)
@@ -151,7 +151,6 @@ class LaserBulletAlien(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.kill()
 
-
         self.rect.x -= self.speed
 
 
@@ -192,18 +191,8 @@ class Meteor(pygame.sprite.Sprite):
         self.rect.x -= self.speedx
         self.rect.y += self.speedy
 
-        if SCORE % 10 == 0:
-            self.image = load_image('meteor.png')
-
         if self.health < 1:
             self.kill()
-
-        #
-        #
-        # if self.rect.left < -200 or self.rect.right > HEIGHT + -200:
-        #     self.rect.x = random.randrange(WIDTH - self.rect.width)
-        #     self.rect.y = random.randrange(-400, -100)
-        #     self.speedy = random.randrange(1, 4)
 
 
 
@@ -215,11 +204,6 @@ class Button(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-
-    def update(self, *args):
-        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
-                self.rect.collidepoint(args[0].pos):
-            pass
 
 
 
@@ -246,7 +230,10 @@ def StartGame():
     start_sprites = pygame.sprite.Group()
 
     PlayButton = Button('Play', 490, 260)
+    UpgradeButton = Button('Upgrade', 490, 360)
+
     start_sprites.add(PlayButton)
+    start_sprites.add(UpgradeButton)
 
 
 
@@ -287,12 +274,81 @@ def StartGame():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return
+                return True
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if PlayButton.rect.collidepoint(event.pos):
-                    Game()
-                    if Game:
-                        return
+                    if Game():
+                        return True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if UpgradeButton.rect.collidepoint(event.pos):
+                    if UpgradeGame():
+                        return True
+
+
+
+
+def UpgradeGame():
+
+    upgrade_sprites = pygame.sprite.Group()
+
+    # UpgradeDMGButton = Button('Plus', 490, 360)
+    # upgrade_sprites.add(UpgradeDMGButton)
+    #
+    # UpgradeDURButton = Button('Upgrade', 490, 360)
+    # upgrade_sprites.add(UpgradeDURButton)
+    #
+    # UpgradeSPDButton = Button('Upgrade', 490, 360)
+    # upgrade_sprites.add(UpgradeSPDButton)
+
+    GoBackButton = Button('GoBack', 0, 0)
+    upgrade_sprites.add(GoBackButton)
+
+    Upgradebackground = load_image('StartMenuFon.png')
+    Upgradebackground2 = load_image('StartMenuFon.png')
+    Upgradebackground_rect = Upgradebackground.get_rect()
+    Upgradebackground_rect2 =Upgradebackground.get_rect()
+    Upgradebackground_rect2.x = WIDTH
+
+    runningUpgradeGame = True
+
+    while runningUpgradeGame:
+        clock.tick(FPS)
+
+
+        Upgradebackground_rect.x -= 1
+        Upgradebackground_rect2.x -= 1
+
+        screen.fill(BLACK)
+        screen.blit(Upgradebackground, Upgradebackground_rect)
+        screen.blit(Upgradebackground2,Upgradebackground_rect2)
+
+        upgrade_sprites.draw(screen)
+
+        pygame.display.flip()
+
+        if Upgradebackground_rect.right < 0:
+            Upgradebackground_rect.x = WIDTH
+
+        if Upgradebackground_rect2.right < 0:
+            Upgradebackground_rect2.x = WIDTH
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return True
+
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if GoBackButton.rect.collidepoint(event.pos):
+                    return
+
+
+
+
+
+
+
+
+
 
 
 
@@ -301,7 +357,6 @@ def StartGame():
 
 
 def Game():
-
 
     global SCORE
     runningGame = True
@@ -325,7 +380,7 @@ def Game():
             if event.type == pygame.KEYDOWN:
                 if pygame.key.get_pressed()[pygame.K_ESCAPE]:
                     if PauseGame():
-                        return
+                        return True
 
         if SCORE % 250 == 0:
             meteor = Meteor()
@@ -339,14 +394,15 @@ def Game():
         if background_rect2.right < 0:
             background_rect2.x = WIDTH
 
-        background_rect.x -= 5
-        background_rect2.x -= 5
+        background_rect.x -= 4
+        background_rect2.x -= 4
 
         enemy.update()
 
 
 
         all_sprites.update()
+
         screen.fill(BLACK)
         screen.blit(background, background_rect)
         screen.blit(background2, background_rect2)
@@ -358,9 +414,11 @@ def Game():
         SCORE += 1
         text = font.render(f"Счет: {SCORE}", True, (255, 255, 255))
         screen.blit(text, (150, 0))
+
         cur_health = font.render(f": {spaceship.health}", True, (0, 127, 14))
         screen.blit(health, (0, 0))
         screen.blit(cur_health, (30, 0))
+
         pygame.display.flip()
 
 
