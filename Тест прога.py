@@ -97,8 +97,8 @@ class Alien(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = load_image('alien.png')
         self.rect = self.image.get_rect()
-        self.rect.x = random.randrange(WIDTH - self.rect.width)
-        self.rect.y = random.randrange(-100, -40)
+        self.rect.x = random.randrange(-40, 100)
+        self.rect.y = random.randrange(HEIGHT - self.rect.height)
         self.speedy = random.randrange(1, 8)
         self.speedx = random.randrange(-3, 3)
 
@@ -107,7 +107,7 @@ class Alien(pygame.sprite.Sprite):
         self.rect.y += self.speedy
         if self.rect.left < -200 or self.rect.right > HEIGHT + -200:
             self.rect.x = random.randrange(WIDTH - self.rect.width)
-            self.rect.y = random.randrange(-100, -50)
+            self.rect.y = random.randrange(-400, -100)
             self.speedy = random.randrange(1, 4)
 
 def ShowScore():
@@ -164,6 +164,16 @@ def Game():
         background_rect2.x -= 5
 
         all_sprites.update()
+        kill = pygame.sprite.groupcollide(aliens, bullets, True, True)
+        for kills in kill:
+            alien = Alien()
+            all_sprites.add(alien)
+            aliens.add(alien)
+
+        # РџСЂРѕРІРµСЂРєР°, РЅРµ СѓРґР°СЂРёР» Р»Рё РјРѕР± РёРіСЂРѕРєР°
+        kill = pygame.sprite.spritecollide(spaceship, aliens, False)
+        if kill:
+            running = False
         screen.fill(BLACK)
         screen.blit(background, background_rect)
         screen.blit(background2, background_rect2)
