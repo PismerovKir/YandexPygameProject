@@ -164,16 +164,6 @@ def Game():
         background_rect2.x -= 5
 
         all_sprites.update()
-        kill = pygame.sprite.groupcollide(aliens, bullets, True, True)
-        for kills in kill:
-            alien = Alien()
-            all_sprites.add(alien)
-            aliens.add(alien)
-
-        # РџСЂРѕРІРµСЂРєР°, РЅРµ СѓРґР°СЂРёР» Р»Рё РјРѕР± РёРіСЂРѕРєР°
-        kill = pygame.sprite.spritecollide(spaceship, aliens, False)
-        if kill:
-            running = False
         screen.fill(BLACK)
         screen.blit(background, background_rect)
         screen.blit(background2, background_rect2)
