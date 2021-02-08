@@ -36,31 +36,26 @@ def load_image(name, color_key=None):
     return image
 
 
-def LoadData():
-    file = open('data/gamedata.txt', 'r')
-    data = file.readlines()
-    global LEVEL_DMG, LEVEL_SPD, LEVEL_DUR, MONEY, PREV_BEST
-    PREV_BEST = int(data[0])
-    MONEY = int(data[1])
-    LEVEL_DUR, LEVEL_DMG, LEVEL_SPD = int(data[2]), int(data[3]), int(data[4])
-
-
-
-
 class SpaceShip(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
         global LEVEL_DMG, LEVEL_SPD, LEVEL_SPEED
 
-        self.image = load_image('korabl.png')
+        self.imageRight1 = load_image('korablRight1.png')
+        self.imageLeft1 = load_image('korablLeft1.png')
+        self.image1 = load_image('korabl1.png')
+
+
+        self.image = self.image1
+
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = 0
         self.rect.centery = HEIGHT / 2
 
-        self.speed = 4 + LEVEL_SPD
-        self.health = 5 + LEVEL_DUR
+        self.speed = 1 + LEVEL_SPD
+        self.health = 3 + LEVEL_DUR
         self.prev_shot = 0
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -73,13 +68,13 @@ class SpaceShip(pygame.sprite.Sprite):
 
         k = pygame.key.get_pressed()
 
-        self.image = load_image('korabl.png')
+        self.image = self.image1
 
         if k[pygame.K_LEFT]:
-            self.image = load_image('korablLeft.png')
+            self.image = self.imageLeft1
             self.rect.x -= self.speed
         if k[pygame.K_RIGHT]:
-            self.image = load_image('korablRight.png')
+            self.image = self.imageRight1
             self.rect.x += self.speed
 
 
@@ -89,7 +84,7 @@ class SpaceShip(pygame.sprite.Sprite):
             self.rect.y += self.speed
 
         if k[pygame.K_SPACE]:
-            if SCORE - self.prev_shot > 50:
+            if SCORE - self.prev_shot > 60:
                 self.prev_shot = SCORE
                 bul = LaserBulletLong(self.rect.right - 20, self.rect.top + 50)
                 all_sprites.add(bul)
@@ -226,24 +221,45 @@ def EndGame():
     pass
 
 
+Startbackground = load_image('StartMenuFon.png')
+Startbackground2 = load_image('StartMenuFon.png')
+
+Startbackground_rect = Startbackground.get_rect()
+Startbackground_rect2 = Startbackground.get_rect()
+Startbackground_rect2.x = 1500
+
+
+def ShowStartBackground():
+    Startbackground_rect.x -= 1
+    Startbackground_rect2.x -= 1
+
+    screen.blit(Startbackground, Startbackground_rect)
+    screen.blit(Startbackground2, Startbackground_rect2)
+
+    if Startbackground_rect.right < 0:
+        Startbackground_rect.x = 1500
+
+    if Startbackground_rect2.right < 0:
+        Startbackground_rect2.x = 1500
+
+
 def StartGame():
 
     start_sprites = pygame.sprite.Group()
 
     PlayButton = Button('Play', 490, 260)
     UpgradeButton = Button('Upgrade', 490, 360)
+    ExitButton = Button('Exit', 490, 460)
+
 
     start_sprites.add(PlayButton)
     start_sprites.add(UpgradeButton)
+    start_sprites.add(ExitButton)
 
+    font = pygame.font.Font(None, 50)
+    text = font.render(f"BEST : {PREV_BEST}", True, (255, 216, 0))
 
-
-
-    Startbackground = load_image('StartMenuFon.png')
-    Startbackground2 = load_image('StartMenuFon.png')
-    Startbackground_rect = Startbackground.get_rect()
-    Startbackground_rect2 = Startbackground.get_rect()
-    Startbackground_rect2.x = WIDTH
+    coin = load_image('Coin.png')
 
     runningStartGame = True
 
@@ -251,26 +267,21 @@ def StartGame():
         clock.tick(FPS)
 
 
-        Startbackground_rect.x -= 1
-        Startbackground_rect2.x -= 1
-
         screen.fill(BLACK)
-        screen.blit(Startbackground, Startbackground_rect)
-        screen.blit(Startbackground2, Startbackground_rect2)
 
-        font = pygame.font.Font(None, 50)
-        text = font.render(f"BEST : {PREV_BEST}", True, (255, 255, 255))
+        ShowStartBackground()
+
+        showmoney = font.render(f" : {MONEY}", True, (255, 216, 0))
+        screen.blit(showmoney, (1000, 0))
         screen.blit(text, (0, 0))
+
+        screen.blit(coin, (960, 0))
+
 
         start_sprites.draw(screen)
 
         pygame.display.flip()
 
-        if Startbackground_rect.right < 0:
-            Startbackground_rect.x = WIDTH
-
-        if Startbackground_rect2.right < 0:
-            Startbackground_rect2.x = WIDTH
 
 
         for event in pygame.event.get():
@@ -284,31 +295,44 @@ def StartGame():
                 if UpgradeButton.rect.collidepoint(event.pos):
                     if UpgradeGame():
                         return True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if ExitButton.rect.collidepoint(event.pos):
+                    return True
 
 
 
 
 def UpgradeGame():
 
+    global MONEY, LEVEL_SPD, LEVEL_DUR, LEVEL_DMG
+
     upgrade_sprites = pygame.sprite.Group()
 
-    # UpgradeDMGButton = Button('Plus', 490, 360)
-    # upgrade_sprites.add(UpgradeDMGButton)
-    #
-    # UpgradeDURButton = Button('Upgrade', 490, 360)
-    # upgrade_sprites.add(UpgradeDURButton)
-    #
-    # UpgradeSPDButton = Button('Upgrade', 490, 360)
-    # upgrade_sprites.add(UpgradeSPDButton)
+    UpgradeDURButton = Button('Plus', 131, 200)
+    upgrade_sprites.add(UpgradeDURButton)
+
+    UpgradeDMGButton = Button('Plus', 531, 200)
+    upgrade_sprites.add(UpgradeDMGButton)
+
+    UpgradeSPDButton = Button('Plus', 931, 200)
+    upgrade_sprites.add(UpgradeSPDButton)
 
     GoBackButton = Button('GoBack', 0, 0)
     upgrade_sprites.add(GoBackButton)
 
-    Upgradebackground = load_image('StartMenuFon.png')
-    Upgradebackground2 = load_image('StartMenuFon.png')
-    Upgradebackground_rect = Upgradebackground.get_rect()
-    Upgradebackground_rect2 =Upgradebackground.get_rect()
-    Upgradebackground_rect2.x = WIDTH
+    font = pygame.font.Font(None, 50)
+
+    textcolor = pygame.color.Color(0, 150, 0)
+    textcolor.hsva = [240, 100, 80]
+
+
+    titleDur =  font.render(f"Прочность", True, textcolor)
+    titleSpd =  font.render(f"Скорость", True, textcolor)
+    titleDmg =  font.render(f"Урон", True, textcolor)
+
+
+    coin = load_image('Coin.png')
+
 
     runningUpgradeGame = True
 
@@ -316,23 +340,35 @@ def UpgradeGame():
         clock.tick(FPS)
 
 
-        Upgradebackground_rect.x -= 1
-        Upgradebackground_rect2.x -= 1
 
         screen.fill(BLACK)
-        screen.blit(Upgradebackground, Upgradebackground_rect)
-        screen.blit(Upgradebackground2,Upgradebackground_rect2)
+        ShowStartBackground()
+
+
+        pygame.draw.line(screen, (0, 0, 0,), (400, 0), (400, HEIGHT), 2)
+        pygame.draw.line(screen, (0, 0, 0,), (800, 0), (800, HEIGHT), 2)
+
+        screen.blit(titleDur, (110, 100))
+        screen.blit(titleSpd, (520, 100))
+        screen.blit(titleDmg, (958, 100))
+
+        showmoney = font.render(f" : {MONEY}", True, (255, 216, 0))
+
+        screen.blit(coin, (960, 0))
+        screen.blit(showmoney, (1000, 0))
+
+        costDur = font.render(f"Цена: {5 + LEVEL_DUR * 5}", True, textcolor)
+        costSpd = font.render(f"Цена: {5 + LEVEL_SPD * 5}", True, textcolor)
+        costDmg = font.render(f"Цена: {5 + LEVEL_DMG * 5}", True, textcolor)
+
+
+        screen.blit(costDur, (200 - costDur.get_size()[0] // 2, 300))
+        screen.blit(costDmg, (600 - costDmg.get_size()[0] // 2, 300))
+        screen.blit(costSpd, (1000 - costSpd.get_size()[0] // 2, 300))
 
         upgrade_sprites.draw(screen)
 
         pygame.display.flip()
-
-        if Upgradebackground_rect.right < 0:
-            Upgradebackground_rect.x = WIDTH
-
-        if Upgradebackground_rect2.right < 0:
-            Upgradebackground_rect2.x = WIDTH
-
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -342,25 +378,34 @@ def UpgradeGame():
                 if GoBackButton.rect.collidepoint(event.pos):
                     return
 
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if UpgradeDURButton.rect.collidepoint(event.pos):
+                    if MONEY >= LEVEL_DUR * 5 + 5:
+                        MONEY -= LEVEL_DUR * 5 + 5
+                        LEVEL_DUR += 1
 
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if UpgradeDMGButton.rect.collidepoint(event.pos):
+                    if MONEY >= LEVEL_DMG * 5 + 5:
+                        MONEY -= LEVEL_DMG * 5 + 5
+                        LEVEL_DMG += 1
 
-
-
-
-
-
-
-
-
-
-
-
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if UpgradeSPDButton.rect.collidepoint(event.pos):
+                    if MONEY >= LEVEL_SPD * 5 + 5:
+                        MONEY -= LEVEL_SPD * 5 + 5
+                        LEVEL_SPD += 1
 
 
 def Game():
 
     global SCORE
     runningGame = True
+
+    spaceship = SpaceShip()
+    Player.add(spaceship)
+    all_sprites.add(spaceship)
+
 
     background = load_image('fon3.png')
     background2 = load_image('fon3.png')
@@ -371,6 +416,31 @@ def Game():
     health = load_image('Health.png')
 
     font = pygame.font.Font(None, 50)
+
+    screen.blit(background, background_rect)
+    screen.blit(background2, background_rect2)
+    all_sprites.draw(screen)
+    three = load_image('three.png')
+    screen.blit(three, (480, 200))
+    pygame.display.flip()
+    clock.tick(1)
+
+    screen.blit(background, background_rect)
+    screen.blit(background2, background_rect2)
+    all_sprites.draw(screen)
+    two = load_image('two.png')
+    screen.blit(two, (480, 200))
+    pygame.display.flip()
+    clock.tick(1)
+
+    screen.blit(background, background_rect)
+    screen.blit(background2, background_rect2)
+    all_sprites.draw(screen)
+    one = load_image('one.png')
+    screen.blit(one, (480, 200))
+    pygame.display.flip()
+    clock.tick(1)
+
 
     while runningGame:
         clock.tick(FPS)
@@ -400,18 +470,14 @@ def Game():
 
         enemy.update()
 
-
-
         all_sprites.update()
 
         screen.fill(BLACK)
         screen.blit(background, background_rect)
         screen.blit(background2, background_rect2)
-
-
-
-        enemy.draw(screen)
         all_sprites.draw(screen)
+        enemy.draw(screen)
+
         SCORE += 1
         text = font.render(f"Счет: {SCORE}", True, (255, 255, 255))
         screen.blit(text, (150, 0))
@@ -425,23 +491,46 @@ def Game():
 
 
 #######################################################################################################################
-LoadData()
+# Начало работы программы
+#######################################################################################################################
 
+# Загружаем данные
+try:
+    file = open('data/gamedata.txt', 'r')
+except FileNotFoundError:
+   file = open('data/gamedata.txt', 'w')
+   file.write('''0
+0
+0
+0
+0''')
+   file.close()
+   file = open('data/gamedata.txt', 'r')
+
+data = file.readlines()
+PREV_BEST = int(data[0])
+MONEY = int(data[1])
+LEVEL_DUR, LEVEL_DMG, LEVEL_SPD = int(data[2]), int(data[3]), int(data[4])
+file.close()
 
 all_sprites = pygame.sprite.Group()
-spaceship = SpaceShip()
-all_sprites.add(spaceship)
+Player = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 enemybullets = pygame.sprite.Group()
-SpaceShipGroup = pygame.sprite.Group()
 enemy = pygame.sprite.Group()
 
 
-# for i in range(2):
-#     alien = Alien()
-#     all_sprites.add(alien)
-#     enemy.add(alien)
 
-StartGame()
+if StartGame():
+    file = open('data/gamedata.txt', 'w')
+    file.write(f'''{PREV_BEST}
+{MONEY}
+{LEVEL_DUR}
+{LEVEL_DMG}
+{LEVEL_SPD}''')
+    file.close()
+
+
+
 
 pygame.quit()
