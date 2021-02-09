@@ -363,8 +363,8 @@ def UpgradeGame():
 
 
         screen.blit(costDur, (200 - costDur.get_size()[0] // 2, 300))
-        screen.blit(costDmg, (600 - costDmg.get_size()[0] // 2, 300))
-        screen.blit(costSpd, (1000 - costSpd.get_size()[0] // 2, 300))
+        screen.blit(costSpd, (600 - costDmg.get_size()[0] // 2, 300))
+        screen.blit(costDmg, (1000 - costSpd.get_size()[0] // 2, 300))
 
         upgrade_sprites.draw(screen)
 
