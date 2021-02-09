@@ -17,6 +17,8 @@ LEVEL_SPD = 0
 PREV_BEST = 0
 MONEY = 0
 
+pygame.mouse.set_visible(False)
+
 
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -202,6 +204,15 @@ class Button(pygame.sprite.Sprite):
 
 
 
+cursor = load_image('cursor.png')
+def ShowCursor():
+    x, y = pygame.mouse.get_pos()
+    if pygame.mouse.get_focused():
+        screen.blit(cursor, (x, y))
+
+
+
+
 
 def PauseGame():
     runningPause = True
@@ -280,6 +291,7 @@ def StartGame():
 
         start_sprites.draw(screen)
 
+        ShowCursor()
         pygame.display.flip()
 
 
@@ -368,6 +380,7 @@ def UpgradeGame():
 
         upgrade_sprites.draw(screen)
 
+        ShowCursor()
         pygame.display.flip()
 
         for event in pygame.event.get():
