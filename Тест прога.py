@@ -311,10 +311,10 @@ def UpgradeGame():
     UpgradeDURButton = Button('Plus', 131, 200)
     upgrade_sprites.add(UpgradeDURButton)
 
-    UpgradeDMGButton = Button('Plus', 531, 200)
+    UpgradeDMGButton = Button('Plus', 931, 200)
     upgrade_sprites.add(UpgradeDMGButton)
 
-    UpgradeSPDButton = Button('Plus', 931, 200)
+    UpgradeSPDButton = Button('Plus', 531, 200)
     upgrade_sprites.add(UpgradeSPDButton)
 
     GoBackButton = Button('GoBack', 0, 0)
@@ -349,8 +349,8 @@ def UpgradeGame():
         pygame.draw.line(screen, (0, 0, 0,), (800, 0), (800, HEIGHT), 2)
 
         screen.blit(titleDur, (110, 100))
-        screen.blit(titleDmg, (520, 100))
-        screen.blit(titleSpd, (958, 100))
+        screen.blit(titleSpd, (520, 100))
+        screen.blit(titleDmg, (958, 100))
 
         showmoney = font.render(f" : {MONEY}", True, (255, 216, 0))
 
