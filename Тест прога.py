@@ -349,8 +349,8 @@ def UpgradeGame():
         pygame.draw.line(screen, (0, 0, 0,), (800, 0), (800, HEIGHT), 2)
 
         screen.blit(titleDur, (110, 100))
-        screen.blit(titleSpd, (520, 100))
-        screen.blit(titleDmg, (958, 100))
+        screen.blit(titleDmg, (520, 100))
+        screen.blit(titleSpd, (958, 100))
 
         showmoney = font.render(f" : {MONEY}", True, (255, 216, 0))
 
