@@ -37,6 +37,8 @@ def load_image(name, color_key=None):
         image = image.convert_alpha()
     return image
 
+pygame.display.set_icon(load_image('icon.png'))
+
 
 class SpaceShip(pygame.sprite.Sprite):
     def __init__(self):
@@ -47,9 +49,16 @@ class SpaceShip(pygame.sprite.Sprite):
         self.imageRight1 = load_image('korablRight1.png')
         self.imageLeft1 = load_image('korablLeft1.png')
         self.image1 = load_image('korabl1.png')
+        self.imageRight2 = load_image('korablRight2.png')
+        self.imageLeft2 = load_image('korablLeft2.png')
+        self.image2 = load_image('korabl2.png')
 
 
         self.image = self.image1
+        self.imageRight = self.imageRight1
+        self.imageLeft = self.imageLeft1
+
+        self.counter = 0
 
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
@@ -57,7 +66,7 @@ class SpaceShip(pygame.sprite.Sprite):
         self.rect.centery = HEIGHT / 2
 
         self.speed = 1 + LEVEL_SPD
-        self.health = 3 + LEVEL_DUR
+        self.health = 5 + LEVEL_DUR
         self.prev_shot = 0
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -67,16 +76,24 @@ class SpaceShip(pygame.sprite.Sprite):
         if self.health < 1:
             EndGame()
 
+        if SCORE % 10 == 0:
+            if self.counter % 2 == 0:
+                self.image = self.image2
+                self.imageLeft = self.imageLeft2
+                self.imageRight = self.imageRight2
+            else:
+                self.image = self.image1
+                self.imageLeft = self.imageLeft1
+                self.imageRight = self.imageRight1
+            self.counter += 1
 
         k = pygame.key.get_pressed()
 
-        self.image = self.image1
-
         if k[pygame.K_LEFT]:
-            self.image = self.imageLeft1
+            self.image = self.imageLeft
             self.rect.x -= self.speed
         if k[pygame.K_RIGHT]:
-            self.image = self.imageRight1
+            self.image = self.imageRight
             self.rect.x += self.speed
 
 
@@ -88,7 +105,7 @@ class SpaceShip(pygame.sprite.Sprite):
         if k[pygame.K_SPACE]:
             if SCORE - self.prev_shot > 60:
                 self.prev_shot = SCORE
-                bul = LaserBulletLong(self.rect.right - 20, self.rect.top + 50)
+                bul = LaserBulletLong(self.rect.right - 66, self.rect.top + 26)
                 all_sprites.add(bul)
                 bullets.add(bul)
 
@@ -215,9 +232,24 @@ def ShowCursor():
 
 
 def PauseGame():
+    backgr = screen.copy()
     runningPause = True
+    ContinueButton = Button('Continue', 480, 300)
+    MenuButton = Button('Menu', 480, 400)
+    butts = pygame.sprite.Group()
+    butts.add(ContinueButton)
+    butts.add(MenuButton)
+
     while runningPause:
         clock.tick(FPS)
+
+        screen.fill(BLACK)
+        screen.blit(backgr, (0, 0))
+
+        butts.draw(screen)
+
+        ShowCursor()
+        pygame.display.flip()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -226,6 +258,16 @@ def PauseGame():
             if event.type == pygame.KEYDOWN:
                 if pygame.key.get_pressed()[pygame.K_ESCAPE]:
                     return
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if ContinueButton.rect.collidepoint(event.pos):
+                    return
+
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if MenuButton.rect.collidepoint(event.pos):
+                    for elem in all_sprites:
+                        elem.kill()
+                    if StartGame():
+                        return True
 
 
 def EndGame():
@@ -247,10 +289,10 @@ def ShowStartBackground():
     screen.blit(Startbackground, Startbackground_rect)
     screen.blit(Startbackground2, Startbackground_rect2)
 
-    if Startbackground_rect.right < 0:
+    if Startbackground_rect.right == 0:
         Startbackground_rect.x = 1500
 
-    if Startbackground_rect2.right < 0:
+    if Startbackground_rect2.right == 0:
         Startbackground_rect2.x = 1500
 
 
@@ -369,14 +411,22 @@ def UpgradeGame():
         screen.blit(coin, (960, 0))
         screen.blit(showmoney, (1000, 0))
 
+
         costDur = font.render(f"Цена: {5 + LEVEL_DUR * 5}", True, textcolor)
         costSpd = font.render(f"Цена: {5 + LEVEL_SPD * 5}", True, textcolor)
         costDmg = font.render(f"Цена: {5 + LEVEL_DMG * 5}", True, textcolor)
 
+        screen.blit(costDur, (200 - costDur.get_size()[0] // 2, 350))
+        screen.blit(costSpd, (600 - costDmg.get_size()[0] // 2, 350))
+        screen.blit(costDmg, (1000 - costSpd.get_size()[0] // 2, 350))
 
-        screen.blit(costDur, (200 - costDur.get_size()[0] // 2, 300))
-        screen.blit(costSpd, (600 - costDmg.get_size()[0] // 2, 300))
-        screen.blit(costDmg, (1000 - costSpd.get_size()[0] // 2, 300))
+        currentDur = font.render(f"Текущая: {5 + LEVEL_DUR}", True, textcolor)
+        currentSpd = font.render(f"Текущая: {1 + LEVEL_SPD}", True, textcolor)
+        currentDmg = font.render(f"Текущий: {1 + LEVEL_DMG}", True, textcolor)
+
+        screen.blit(currentDur, (200 - currentDur.get_size()[0] // 2, 500))
+        screen.blit(currentSpd, (600 - currentSpd.get_size()[0] // 2, 500))
+        screen.blit(currentDmg, (1000 - currentDmg.get_size()[0] // 2, 500))
 
         upgrade_sprites.draw(screen)
 
@@ -409,11 +459,16 @@ def UpgradeGame():
                         MONEY -= LEVEL_SPD * 5 + 5
                         LEVEL_SPD += 1
 
+            if event.type == pygame.KEYDOWN:
+                if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                    return
+
 
 def Game():
 
-    global SCORE
+    global SCORE, spaceship
     runningGame = True
+
 
     spaceship = SpaceShip()
     Player.add(spaceship)
@@ -469,13 +524,14 @@ def Game():
         if SCORE % 250 == 0:
             meteor = Meteor()
             enemy.add(meteor)
+            all_sprites.add(meteor)
 
 
 
-        if background_rect.right < 0:
+        if background_rect.right == 0:
             background_rect.x = WIDTH
 
-        if background_rect2.right < 0:
+        if background_rect2.right == 0:
             background_rect2.x = WIDTH
 
         background_rect.x -= 4
@@ -526,6 +582,8 @@ MONEY = int(data[1])
 LEVEL_DUR, LEVEL_DMG, LEVEL_SPD = int(data[2]), int(data[3]), int(data[4])
 file.close()
 
+
+spaceship = SpaceShip()
 all_sprites = pygame.sprite.Group()
 Player = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
