@@ -5,6 +5,7 @@ import random
 from os import path
 
 pygame.init()
+# pygame.mixer.init()
 
 WIDTH = 1200
 HEIGHT = 800
@@ -24,10 +25,15 @@ pygame.mouse.set_visible(False)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
+
 menuMusic = pygame.mixer.music
 menuMusic.load("data/music_fon.mp3")
 menuMusic.play(-1, 0.0)
 pygame.mixer.music.set_volume(70)
+
+# pew = pygame.mixer.Channel(0)
+pew = pygame.mixer.Sound("data/pewpew.wav")
+pew.set_volume(0.7)
 
 
 def load_image(name, color_key=None):
@@ -113,6 +119,7 @@ class SpaceShip(pygame.sprite.Sprite):
                 bul = LaserBulletLong(self.rect.right - 66, self.rect.top + 26)
                 all_sprites.add(bul)
                 bullets.add(bul)
+                pew.play(0)
 
 
         if self.rect.right > WIDTH:
@@ -404,6 +411,11 @@ def UpgradeGame():
     coin = load_image('Coin.png')
 
 
+    gun = load_image('gun.png')
+    body = load_image('body.png')
+    motor = load_image('motor.png')
+
+
     runningUpgradeGame = True
 
     while runningUpgradeGame:
@@ -443,6 +455,12 @@ def UpgradeGame():
         screen.blit(currentDur, (200 - currentDur.get_size()[0] // 2, 500))
         screen.blit(currentSpd, (600 - currentSpd.get_size()[0] // 2, 500))
         screen.blit(currentDmg, (1000 - currentDmg.get_size()[0] // 2, 500))
+
+        screen.blit(body, (200 - body.get_size()[0] // 2, 650))
+        screen.blit(motor, (600 - motor.get_size()[0] // 2, 650))
+        screen.blit(gun, (1000 - gun.get_size()[0] // 2, 650))
+
+
 
         upgrade_sprites.draw(screen)
 
