@@ -23,7 +23,7 @@ pygame.mouse.set_visible(False)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
-pygame.mixer.music.load("music.mp3")
+pygame.mixer.music.load("data/music_fon.mp3")
 pygame.mixer.music.play(-1, 0.0)
 
 
