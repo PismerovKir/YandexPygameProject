@@ -272,10 +272,12 @@ def PauseGame():
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if MenuButton.rect.collidepoint(event.pos):
+                    pygame.mixer.music.unpause()
                     for elem in all_sprites:
                         elem.kill()
                     if StartGame():
                         return True
+
 
 
 
