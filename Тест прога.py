@@ -2,6 +2,7 @@ import pygame
 import os
 import sys
 import random
+from os import path
 
 pygame.init()
 
@@ -23,8 +24,10 @@ pygame.mouse.set_visible(False)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
-pygame.mixer.music.load("data/music_fon.mp3")
-pygame.mixer.music.play(-1, 0.0)
+menuMusic = pygame.mixer.music
+menuMusic.load("data/music_fon.mp3")
+menuMusic.play(-1, 0.0)
+pygame.mixer.music.set_volume(70)
 
 
 def load_image(name, color_key=None):
@@ -242,6 +245,8 @@ def PauseGame():
     butts.add(ContinueButton)
     butts.add(MenuButton)
 
+    pygame.mixer.music.pause()
+
     while runningPause:
         clock.tick(FPS)
 
@@ -259,10 +264,11 @@ def PauseGame():
                 return True
             if event.type == pygame.KEYDOWN:
                 if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-                    return
+                    return pygame.mixer.music.unpause()
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if ContinueButton.rect.collidepoint(event.pos):
-                    return
+                    return pygame.mixer.music.unpause()
+
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if MenuButton.rect.collidepoint(event.pos):
@@ -270,6 +276,12 @@ def PauseGame():
                         elem.kill()
                     if StartGame():
                         return True
+
+
+
+
+
+
 
 
 def EndGame():
@@ -523,6 +535,7 @@ def Game():
                     if PauseGame():
                         return True
 
+
         if SCORE % 250 == 0:
             meteor = Meteor()
             enemy.add(meteor)
@@ -558,6 +571,8 @@ def Game():
         screen.blit(cur_health, (30, 0))
 
         pygame.display.flip()
+
+
 
 
 
