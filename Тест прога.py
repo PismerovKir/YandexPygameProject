@@ -18,6 +18,8 @@ LEVEL_DMG = 0
 LEVEL_SPD = 0
 PREV_BEST = 0
 MONEY = 0
+MUSIC = True
+
 
 pygame.mouse.set_visible(False)
 
@@ -28,7 +30,6 @@ clock = pygame.time.Clock()
 
 menuMusic = pygame.mixer.music
 menuMusic.load("data/music_fon.mp3")
-menuMusic.play(-1, 0.0)
 pygame.mixer.music.set_volume(70)
 
 # pew = pygame.mixer.Channel(0)
@@ -252,7 +253,6 @@ def PauseGame():
     butts.add(ContinueButton)
     butts.add(MenuButton)
 
-    pygame.mixer.music.pause()
 
     while runningPause:
         clock.tick(FPS)
@@ -271,10 +271,10 @@ def PauseGame():
                 return True
             if event.type == pygame.KEYDOWN:
                 if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-                    return pygame.mixer.music.unpause()
+                    return
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if ContinueButton.rect.collidepoint(event.pos):
-                    return pygame.mixer.music.unpause()
+                    return
 
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -321,11 +321,18 @@ def ShowStartBackground():
 
 def StartGame():
 
+    global MUSIC
+
     start_sprites = pygame.sprite.Group()
+
+    if not menuMusic.get_busy():
+        menuMusic.play(-1)
 
     PlayButton = Button('Play', 490, 260)
     UpgradeButton = Button('Upgrade', 490, 360)
     ExitButton = Button('Exit', 490, 460)
+
+    musicButton = Button('MusicOn', 0, HEIGHT - 40)
 
 
     start_sprites.add(PlayButton)
@@ -341,6 +348,18 @@ def StartGame():
 
     while runningStartGame:
         clock.tick(FPS)
+
+        if MUSIC:
+            musicButton.kill()
+            musicButton = Button('MusicOff', 0, HEIGHT - 40)
+            if not menuMusic.get_busy():
+                menuMusic.play(-1)
+        else:
+            musicButton.kill()
+            musicButton = Button('MusicOn', 0, HEIGHT - 40)
+            menuMusic.stop()
+
+        start_sprites.add(musicButton)
 
 
         screen.fill(BLACK)
@@ -366,6 +385,7 @@ def StartGame():
                 return True
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if PlayButton.rect.collidepoint(event.pos):
+                    menuMusic.stop()
                     if Game():
                         return True
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -375,6 +395,12 @@ def StartGame():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if ExitButton.rect.collidepoint(event.pos):
                     return True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if musicButton.rect.collidepoint(event.pos):
+                    if MUSIC:
+                        MUSIC = False
+                    else:
+                        MUSIC = True
 
 
 
