@@ -85,9 +85,6 @@ class SpaceShip(pygame.sprite.Sprite):
 
     def update(self):
 
-        if self.health < 1:
-            EndGame()
-
         if SCORE % 10 == 0:
             if self.counter % 2 == 0:
                 self.image = self.image2
@@ -295,11 +292,29 @@ def PauseGame():
 
 def EndGame():
     global SCORE, PREV_BEST
-    if SCORE > PREV_BEST:
-        PREV_BEST = SCORE
-        SCORE = 0
-    if StartGame():
-        return True
+
+    EndBackground = screen.copy()
+    runningEndGame = True
+
+    while runningEndGame:
+        clock.tick(FPS)
+        screen.fill(BLACK)
+
+        screen.blit(EndBackground, EndBackground.get_rect())
+
+
+        ShowCursor()
+        pygame.display.flip()
+
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return True
+            if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                if StartGame():
+                    return True
+
 
 
 
@@ -579,7 +594,22 @@ def Game():
     while runningGame:
         clock.tick(FPS)
 
+        ################ Убийство корабля для проверки конца игры(Убрать из финала) TODO
+        if SCORE == 500:
+            spaceship.health = 0
+
         if spaceship.health == 0:
+            screen.fill(BLACK)
+            screen.blit(background, background_rect)
+            screen.blit(background2, background_rect2)
+            bullets.draw(screen)
+            enemybullets.draw(screen)
+            enemy.draw(screen)
+            x, y = spaceship.rect.centerx, spaceship.rect.centery
+            screen.blit(load_image('explosion.png'), (x - 50, y - 50))
+            for sprite in all_sprites:
+                sprite.kill()
+            SCORE = 0
             if EndGame():
                 return True
 
@@ -615,7 +645,9 @@ def Game():
         screen.fill(BLACK)
         screen.blit(background, background_rect)
         screen.blit(background2, background_rect2)
-        all_sprites.draw(screen)
+        Player.draw(screen)
+        bullets.draw(screen)
+        enemybullets.draw(screen)
         enemy.draw(screen)
 
         SCORE += 1
