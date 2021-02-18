@@ -26,6 +26,7 @@ pygame.mouse.set_visible(False)
 
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption('Космострелялка')
 clock = pygame.time.Clock()
 
 menuMusic = pygame.mixer.music
@@ -34,7 +35,7 @@ pygame.mixer.music.set_volume(70)
 
 # pew = pygame.mixer.Channel(0)
 pew = pygame.mixer.Sound("data/pewpew.wav")
-pew.set_volume(0.7)
+pew.set_volume(0.4)
 
 
 def load_image(name, color_key=None):
@@ -154,8 +155,9 @@ class LaserBulletLong(pygame.sprite.Sprite):
 
         if pygame.sprite.spritecollideany(self, enemy):
             touched = pygame.sprite.spritecollideany(self, enemy)
-            touched.health -= self.damage
-            self.kill()
+            if pygame.sprite.collide_mask(self, touched):
+                touched.health -= self.damage
+                self.kill()
 
 
 
@@ -202,7 +204,8 @@ class Alien(pygame.sprite.Sprite):
 class Meteor(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = load_image('meteor1.png')
+        self.image = load_image(f'meteor{random.randint(1, 3)}.png')
+        self.bangimage = load_image('meteorBang.png')
         self.rect = self.image.get_rect()
         self.rect.x = WIDTH
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
@@ -211,13 +214,21 @@ class Meteor(pygame.sprite.Sprite):
         self.health = 3
         self.damage = 3
         self.mask = pygame.mask.from_surface(self.image)
+        self.deathCounter = -1
 
     def update(self):
+        self.deathCounter -= 1
+
         self.rect.x -= self.speedx
         self.rect.y += self.speedy
 
-        if self.health < 1:
+        if self.deathCounter == 0:
             self.kill()
+
+        if self.health < 1 and self.deathCounter < 0:
+            self.image = self.bangimage
+            self.deathCounter = 100
+
 
 
 
@@ -296,11 +307,18 @@ def EndGame():
     EndBackground = screen.copy()
     runningEndGame = True
 
+    butts = pygame.sprite.Group()
+
+    MenuButton = Button('Menu', 480, 400)
+    butts.add(MenuButton)
+
     while runningEndGame:
         clock.tick(FPS)
         screen.fill(BLACK)
 
-        screen.blit(EndBackground, EndBackground.get_rect())
+        screen.blit(EndBackground, (0, 0))
+
+        butts.draw(screen)
 
 
         ShowCursor()
@@ -314,6 +332,10 @@ def EndGame():
             if pygame.key.get_pressed()[pygame.K_ESCAPE]:
                 if StartGame():
                     return True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if MenuButton.rect.collidepoint(event.pos):
+                    if StartGame():
+                        return True
 
 
 
@@ -446,8 +468,8 @@ def UpgradeGame():
 
     font = pygame.font.Font(None, 50)
 
-    textcolor = pygame.color.Color(0, 150, 0)
-    textcolor.hsva = [240, 100, 80]
+    textcolor = pygame.color.Color(0, 50, 255)
+    # textcolor.hsva = [240, 100, 80]
 
 
     titleDur =  font.render(f"Прочность", True, textcolor)
@@ -595,7 +617,7 @@ def Game():
         clock.tick(FPS)
 
         ################ Убийство корабля для проверки конца игры(Убрать из финала) TODO
-        if SCORE == 500:
+        if SCORE == 2000:
             spaceship.health = 0
 
         if spaceship.health == 0:
@@ -622,7 +644,7 @@ def Game():
                         return True
 
 
-        if SCORE % 250 == 0:
+        if SCORE % 100 == 0:
             meteor = Meteor()
             enemy.add(meteor)
             all_sprites.add(meteor)
