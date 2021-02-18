@@ -195,7 +195,7 @@ class Alien(pygame.sprite.Sprite):
         self.bangimage = load_image('alienBang.png')
         self.rect.x = WIDTH
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
-        self.speedy = random.randrange(-1, 2)
+        self.speedy = 1
         self.speedx = 1
         self.health = 3
         self.damage = 3
@@ -207,7 +207,6 @@ class Alien(pygame.sprite.Sprite):
         self.deathCounter -= 1
 
         self.rect.x -= self.speedx
-        self.rect.y += self.speedy
 
         if self.deathCounter == 0:
             self.kill()
@@ -222,6 +221,10 @@ class Alien(pygame.sprite.Sprite):
             enemybullet = LaserBulletAlien(self.rect.left, self.rect.centery)
             all_sprites.add(enemybullet)
             enemybullets.add(enemybullet)
+        if self.rect.centery < spaceship.rect.centery:
+            self.rect.y += self.speedy
+        if self.rect.centery > spaceship.rect.centery:
+            self.rect.y -= self.speedy
 
 
 
