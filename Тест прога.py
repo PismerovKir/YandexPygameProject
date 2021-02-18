@@ -171,11 +171,18 @@ class LaserBulletAlien(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.speed = 10
+        self.damage = 3
 
 
     def update(self):
         if self.rect.right < 0:
             self.kill()
+
+        if pygame.sprite.spritecollideany(self, Player):
+            touched = pygame.sprite.spritecollideany(self, Player)
+            if pygame.sprite.collide_mask(self, touched):
+                touched.health -= self.damage
+                self.kill()
 
         self.rect.x -= self.speed
 
@@ -185,19 +192,37 @@ class Alien(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = load_image('alien.png')
         self.rect = self.image.get_rect()
-        self.rect.x = random.randrange(-40, 100)
-        self.rect.y = random.randrange(HEIGHT - self.rect.height)
-        self.speedy = random.randrange(1, 8)
-        self.speedx = random.randrange(-3, 3)
+        self.bangimage = load_image('alienBang.png')
+        self.rect.x = WIDTH
+        self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
+        self.speedy = random.randrange(-1, 2)
+        self.speedx = 1
+        self.health = 3
+        self.damage = 3
         self.mask = pygame.mask.from_surface(self.image)
+        self.deathCounter = -1
+        self.prev_shot = 0
 
     def update(self):
-        self.rect.x += self.speedx
+        self.deathCounter -= 1
+
+        self.rect.x -= self.speedx
         self.rect.y += self.speedy
-        if self.rect.left < -200 or self.rect.right > HEIGHT + -200:
-            self.rect.x = random.randrange(WIDTH - self.rect.width)
-            self.rect.y = random.randrange(-400, -100)
-            self.speedy = random.randrange(1, 4)
+
+        if self.deathCounter == 0:
+            self.kill()
+
+        if self.health < 1 and self.deathCounter < 0:
+            self.image = self.bangimage
+            self.deathCounter = 100
+
+        # БАЗОВЫЙ ИИ TODO
+        if self.rect.centery in range(spaceship.rect.centery - 30, spaceship.rect.centery + 30) and SCORE - self.prev_shot > 50:
+            self.prev_shot = SCORE
+            enemybullet = LaserBulletAlien(self.rect.left, self.rect.centery)
+            all_sprites.add(enemybullet)
+            enemybullets.add(enemybullet)
+
 
 
 
@@ -302,7 +327,11 @@ def PauseGame():
 
 
 def EndGame():
+
     global SCORE, PREV_BEST
+
+    if SCORE > PREV_BEST:
+        PREV_BEST = SCORE
 
     EndBackground = screen.copy()
     runningEndGame = True
@@ -570,6 +599,7 @@ def UpgradeGame():
 def Game():
 
     global SCORE, spaceship
+    SCORE = 0
     runningGame = True
 
 
@@ -616,10 +646,6 @@ def Game():
     while runningGame:
         clock.tick(FPS)
 
-        ################ Убийство корабля для проверки конца игры(Убрать из финала) TODO
-        if SCORE == 2000:
-            spaceship.health = 0
-
         if spaceship.health == 0:
             screen.fill(BLACK)
             screen.blit(background, background_rect)
@@ -631,7 +657,6 @@ def Game():
             screen.blit(load_image('explosion.png'), (x - 50, y - 50))
             for sprite in all_sprites:
                 sprite.kill()
-            SCORE = 0
             if EndGame():
                 return True
 
@@ -648,6 +673,11 @@ def Game():
             meteor = Meteor()
             enemy.add(meteor)
             all_sprites.add(meteor)
+
+        if SCORE % 100 == 0:
+            alien = Alien()
+            enemy.add(alien)
+            all_sprites.add(alien)
 
 
 
@@ -667,6 +697,7 @@ def Game():
         screen.fill(BLACK)
         screen.blit(background, background_rect)
         screen.blit(background2, background_rect2)
+
         Player.draw(screen)
         bullets.draw(screen)
         enemybullets.draw(screen)
