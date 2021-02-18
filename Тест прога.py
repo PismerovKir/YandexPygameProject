@@ -294,7 +294,13 @@ def PauseGame():
 
 
 def EndGame():
-    pass
+    global SCORE, PREV_BEST
+    if SCORE > PREV_BEST:
+        PREV_BEST = SCORE
+        SCORE = 0
+    if StartGame():
+        return True
+
 
 
 Startbackground = load_image('StartMenuFon.png')
@@ -572,6 +578,10 @@ def Game():
 
     while runningGame:
         clock.tick(FPS)
+
+        if spaceship.health == 0:
+            if EndGame():
+                return True
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
