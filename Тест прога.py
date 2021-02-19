@@ -37,6 +37,9 @@ pygame.mixer.music.set_volume(70)
 pew = pygame.mixer.Sound("data/pewpew.wav")
 pew.set_volume(0.4)
 
+alienpew = pygame.mixer.Sound("data/alienpew.wav")
+alienpew.set_volume(0.4)
+
 
 def load_image(name, color_key=None):
     fullname = os.path.join('data', name)
@@ -216,11 +219,13 @@ class Alien(pygame.sprite.Sprite):
             self.deathCounter = 100
 
         # БАЗОВЫЙ ИИ TODO
-        if self.rect.centery in range(spaceship.rect.centery - 30, spaceship.rect.centery + 30) and SCORE - self.prev_shot > 50:
+        if self.rect.centery in range(spaceship.rect.centery - 30, spaceship.rect.centery + 30) and SCORE - self.prev_shot > 70:
             self.prev_shot = SCORE
             enemybullet = LaserBulletAlien(self.rect.left, self.rect.centery)
             all_sprites.add(enemybullet)
             enemybullets.add(enemybullet)
+            alienpew.play()
+
         if self.rect.centery < spaceship.rect.centery:
             self.rect.y += self.speedy
         if self.rect.centery > spaceship.rect.centery:
@@ -649,7 +654,7 @@ def Game():
     while runningGame:
         clock.tick(FPS)
 
-        if spaceship.health == 0:
+        if spaceship.health < 0:
             screen.fill(BLACK)
             screen.blit(background, background_rect)
             screen.blit(background2, background_rect2)
