@@ -26,6 +26,7 @@ pygame.mouse.set_visible(False)
 
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption('Космострелялка')
 clock = pygame.time.Clock()
 
 menuMusic = pygame.mixer.music
@@ -34,7 +35,10 @@ pygame.mixer.music.set_volume(70)
 
 # pew = pygame.mixer.Channel(0)
 pew = pygame.mixer.Sound("data/pewpew.wav")
-pew.set_volume(0.7)
+pew.set_volume(0.4)
+
+alienpew = pygame.mixer.Sound("data/alienpew.wav")
+alienpew.set_volume(0.4)
 
 
 def load_image(name, color_key=None):
@@ -84,9 +88,6 @@ class SpaceShip(pygame.sprite.Sprite):
 
 
     def update(self):
-
-        if self.health < 1:
-            EndGame()
 
         if SCORE % 10 == 0:
             if self.counter % 2 == 0:
@@ -157,8 +158,9 @@ class LaserBulletLong(pygame.sprite.Sprite):
 
         if pygame.sprite.spritecollideany(self, enemy):
             touched = pygame.sprite.spritecollideany(self, enemy)
-            touched.health -= self.damage
-            self.kill()
+            if pygame.sprite.collide_mask(self, touched):
+                touched.health -= self.damage
+                self.kill()
 
 
 
@@ -172,11 +174,18 @@ class LaserBulletAlien(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.speed = 10
+        self.damage = 3
 
 
     def update(self):
         if self.rect.right < 0:
             self.kill()
+
+        if pygame.sprite.spritecollideany(self, Player):
+            touched = pygame.sprite.spritecollideany(self, Player)
+            if pygame.sprite.collide_mask(self, touched):
+                touched.health -= self.damage
+                self.kill()
 
         self.rect.x -= self.speed
 
@@ -186,26 +195,50 @@ class Alien(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = load_image('alien.png')
         self.rect = self.image.get_rect()
-        self.rect.x = random.randrange(-40, 100)
-        self.rect.y = random.randrange(HEIGHT - self.rect.height)
-        self.speedy = random.randrange(1, 8)
-        self.speedx = random.randrange(-3, 3)
+        self.bangimage = load_image('alienBang.png')
+        self.rect.x = WIDTH
+        self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
+        self.speedy = 1
+        self.speedx = 1
+        self.health = 3
+        self.damage = 3
         self.mask = pygame.mask.from_surface(self.image)
+        self.deathCounter = -1
+        self.prev_shot = 0
 
     def update(self):
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
-        if self.rect.left < -200 or self.rect.right > HEIGHT + -200:
-            self.rect.x = random.randrange(WIDTH - self.rect.width)
-            self.rect.y = random.randrange(-400, -100)
-            self.speedy = random.randrange(1, 4)
+        self.deathCounter -= 1
+
+        self.rect.x -= self.speedx
+
+        if self.deathCounter == 0:
+            self.kill()
+
+        if self.health < 1 and self.deathCounter < 0:
+            self.image = self.bangimage
+            self.deathCounter = 100
+
+        # БАЗОВЫЙ ИИ TODO
+        if self.rect.centery in range(spaceship.rect.centery - 30, spaceship.rect.centery + 30) and SCORE - self.prev_shot > 70:
+            self.prev_shot = SCORE
+            enemybullet = LaserBulletAlien(self.rect.left, self.rect.centery)
+            all_sprites.add(enemybullet)
+            enemybullets.add(enemybullet)
+            alienpew.play()
+
+        if self.rect.centery < spaceship.rect.centery:
+            self.rect.y += self.speedy
+        if self.rect.centery > spaceship.rect.centery:
+            self.rect.y -= self.speedy
+
 
 
 
 class Meteor(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = load_image('meteor1.png')
+        self.image = load_image(f'meteor{random.randint(1, 3)}.png')
+        self.bangimage = load_image('meteorBang.png')
         self.rect = self.image.get_rect()
         self.rect.x = WIDTH
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
@@ -214,13 +247,21 @@ class Meteor(pygame.sprite.Sprite):
         self.health = 3
         self.damage = 3
         self.mask = pygame.mask.from_surface(self.image)
+        self.deathCounter = -1
 
     def update(self):
+        self.deathCounter -= 1
+
         self.rect.x -= self.speedx
         self.rect.y += self.speedy
 
-        if self.health < 1:
+        if self.deathCounter == 0:
             self.kill()
+
+        if self.health < 1 and self.deathCounter < 0:
+            self.image = self.bangimage
+            self.deathCounter = 100
+
 
 
 
@@ -294,7 +335,46 @@ def PauseGame():
 
 
 def EndGame():
-    pass
+
+    global SCORE, PREV_BEST
+
+    if SCORE > PREV_BEST:
+        PREV_BEST = SCORE
+
+    EndBackground = screen.copy()
+    runningEndGame = True
+
+    butts = pygame.sprite.Group()
+
+    MenuButton = Button('Menu', 480, 400)
+    butts.add(MenuButton)
+
+    while runningEndGame:
+        clock.tick(FPS)
+        screen.fill(BLACK)
+
+        screen.blit(EndBackground, (0, 0))
+
+        butts.draw(screen)
+
+
+        ShowCursor()
+        pygame.display.flip()
+
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return True
+            if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                if StartGame():
+                    return True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if MenuButton.rect.collidepoint(event.pos):
+                    if StartGame():
+                        return True
+
+
 
 
 Startbackground = load_image('StartMenuFon.png')
@@ -425,8 +505,8 @@ def UpgradeGame():
 
     font = pygame.font.Font(None, 50)
 
-    textcolor = pygame.color.Color(0, 150, 0)
-    textcolor.hsva = [240, 100, 80]
+    textcolor = pygame.color.Color(0, 50, 255)
+    # textcolor.hsva = [240, 100, 80]
 
 
     titleDur =  font.render(f"Прочность", True, textcolor)
@@ -527,6 +607,7 @@ def UpgradeGame():
 def Game():
 
     global SCORE, spaceship
+    SCORE = 0
     runningGame = True
 
 
@@ -573,6 +654,20 @@ def Game():
     while runningGame:
         clock.tick(FPS)
 
+        if spaceship.health < 0:
+            screen.fill(BLACK)
+            screen.blit(background, background_rect)
+            screen.blit(background2, background_rect2)
+            bullets.draw(screen)
+            enemybullets.draw(screen)
+            enemy.draw(screen)
+            x, y = spaceship.rect.centerx, spaceship.rect.centery
+            screen.blit(load_image('explosion.png'), (x - 50, y - 50))
+            for sprite in all_sprites:
+                sprite.kill()
+            if EndGame():
+                return True
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
@@ -582,10 +677,15 @@ def Game():
                         return True
 
 
-        if SCORE % 250 == 0:
+        if SCORE % 100 == 0:
             meteor = Meteor()
             enemy.add(meteor)
             all_sprites.add(meteor)
+
+        if SCORE % 100 == 0:
+            alien = Alien()
+            enemy.add(alien)
+            all_sprites.add(alien)
 
 
 
@@ -605,7 +705,10 @@ def Game():
         screen.fill(BLACK)
         screen.blit(background, background_rect)
         screen.blit(background2, background_rect2)
-        all_sprites.draw(screen)
+
+        Player.draw(screen)
+        bullets.draw(screen)
+        enemybullets.draw(screen)
         enemy.draw(screen)
 
         SCORE += 1
