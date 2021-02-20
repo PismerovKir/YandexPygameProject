@@ -195,7 +195,11 @@ class Alien(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = load_image('alien.png')
         self.rect = self.image.get_rect()
-        self.bangimage = load_image('alienBang.png')
+        self.bangimage1 = load_image('alienbang1.png')
+        self.bangimage2 = load_image('alienbang2.png')
+        self.bangimage3 = load_image('alienbang3.png')
+        self.bangimage4 = load_image('alienbang4.png')
+        self.bangimage5 = load_image('alienbang5.png')
         self.rect.x = WIDTH
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
         self.speedy = 1
@@ -207,16 +211,24 @@ class Alien(pygame.sprite.Sprite):
         self.prev_shot = 0
 
     def update(self):
-        self.deathCounter -= 1
-
         self.rect.x -= self.speedx
+        self.deathCounter -= 1
+        if self.deathCounter == 32:
+            self.image = self.bangimage2
+        if self.deathCounter == 24:
+            self.image = self.bangimage3
+        if self.deathCounter == 16:
+            self.image = self.bangimage4
+        if self.deathCounter == 8:
+            self.image = self.bangimage5
+
 
         if self.deathCounter == 0:
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
-            self.image = self.bangimage
-            self.deathCounter = 100
+            self.image = self.bangimage1
+            self.deathCounter = 40
 
         # БАЗОВЫЙ ИИ TODO
         if self.rect.centery in range(spaceship.rect.centery - 30, spaceship.rect.centery + 30) and SCORE - self.prev_shot > 70:
@@ -350,23 +362,32 @@ def PauseGame():
 def EndGame():
 
     global SCORE, PREV_BEST
+    font = pygame.font.Font(None, 50)
+    newBest = font.render(f"", True, (0, 0, 0))
 
     if SCORE > PREV_BEST:
-        PREV_BEST = SCORE
+        # PREV_BEST = SCORE TODO СНЯТЬ этот коммент
+        newBest = font.render(f"Новый рекорд: {SCORE}!", True, (255, 255, 255))
+
 
     EndBackground = screen.copy()
     runningEndGame = True
 
     butts = pygame.sprite.Group()
 
-    MenuButton = Button('Menu', 480, 400)
+    MenuButton = Button('Menu', 480, 500)
     butts.add(MenuButton)
+    #TODO Сделать кнопку заново
+    AgainButton = Button('Play', 480, 400)
+    butts.add(AgainButton)
 
     while runningEndGame:
         clock.tick(FPS)
         screen.fill(BLACK)
 
         screen.blit(EndBackground, (0, 0))
+
+        screen.blit(newBest, (450, 300))
 
         butts.draw(screen)
 
@@ -386,6 +407,11 @@ def EndGame():
                 if MenuButton.rect.collidepoint(event.pos):
                     if StartGame():
                         return True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if AgainButton.rect.collidepoint(event.pos):
+                    if Game():
+                        return True
+
 
 
 
@@ -639,11 +665,15 @@ def Game():
 
     font = pygame.font.Font(None, 50)
 
+    count = pygame.mixer.Sound('data/count.wav')
+    go = pygame.mixer.Sound('data/go.wav')
+
     screen.blit(background, background_rect)
     screen.blit(background2, background_rect2)
     all_sprites.draw(screen)
     three = load_image('three.png')
     screen.blit(three, (480, 200))
+    count.play()
     pygame.display.flip()
     clock.tick(1)
 
@@ -652,6 +682,7 @@ def Game():
     all_sprites.draw(screen)
     two = load_image('two.png')
     screen.blit(two, (480, 200))
+    count.play()
     pygame.display.flip()
     clock.tick(1)
 
@@ -661,7 +692,9 @@ def Game():
     one = load_image('one.png')
     screen.blit(one, (480, 200))
     pygame.display.flip()
+    count.play()
     clock.tick(1)
+    go.play()
 
 
     while runningGame:
@@ -695,10 +728,10 @@ def Game():
             enemy.add(meteor)
             all_sprites.add(meteor)
 
-        # if SCORE % 100 == 0:
-        #     alien = Alien()
-        #     enemy.add(alien)
-        #     all_sprites.add(alien)
+        if SCORE % 100 == 0:
+            alien = Alien()
+            enemy.add(alien)
+            all_sprites.add(alien)
 
 
 
