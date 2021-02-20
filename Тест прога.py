@@ -238,7 +238,12 @@ class Meteor(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = load_image(f'meteor{random.randint(1, 3)}.png')
-        self.bangimage = load_image('meteorBang.png')
+        self.bangimage1 = load_image('meteorBang1.png')
+        self.bangimage2 = load_image('meteorBang2.png')
+        self.bangimage3 = load_image('meteorBang3.png')
+        self.bangimage4 = load_image('meteorBang4.png')
+        self.bangimage5 = load_image('meteorBang5.png')
+
         self.rect = self.image.get_rect()
         self.rect.x = WIDTH
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
@@ -251,6 +256,14 @@ class Meteor(pygame.sprite.Sprite):
 
     def update(self):
         self.deathCounter -= 1
+        if self.deathCounter == 32:
+            self.image = self.bangimage2
+        if self.deathCounter == 24:
+            self.image = self.bangimage3
+        if self.deathCounter == 16:
+            self.image = self.bangimage4
+        if self.deathCounter == 8:
+            self.image = self.bangimage5
 
         self.rect.x -= self.speedx
         self.rect.y += self.speedy
@@ -259,8 +272,8 @@ class Meteor(pygame.sprite.Sprite):
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
-            self.image = self.bangimage
-            self.deathCounter = 100
+            self.image = self.bangimage1
+            self.deathCounter = 40
 
 
 
@@ -682,10 +695,10 @@ def Game():
             enemy.add(meteor)
             all_sprites.add(meteor)
 
-        if SCORE % 100 == 0:
-            alien = Alien()
-            enemy.add(alien)
-            all_sprites.add(alien)
+        # if SCORE % 100 == 0:
+        #     alien = Alien()
+        #     enemy.add(alien)
+        #     all_sprites.add(alien)
 
 
 
