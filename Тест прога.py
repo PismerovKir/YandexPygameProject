@@ -486,10 +486,10 @@ def StartGame():
         ShowStartBackground()
 
         showmoney = font.render(f" : {MONEY}", True, (255, 216, 0))
-        screen.blit(showmoney, (1000, 0))
+        screen.blit(showmoney, (WIDTH - showmoney.get_width() - 5, 0))
         screen.blit(text, (0, 0))
 
-        screen.blit(coin, (960, 0))
+        screen.blit(coin, (WIDTH - showmoney.get_width() - 50, 0))
 
 
         start_sprites.draw(screen)
@@ -580,9 +580,9 @@ def UpgradeGame():
         screen.blit(titleDmg, (958, 100))
 
         showmoney = font.render(f" : {MONEY}", True, (255, 216, 0))
+        screen.blit(showmoney, (WIDTH - showmoney.get_width() - 5, 0))
+        screen.blit(coin, (WIDTH - showmoney.get_width() - 50, 0))
 
-        screen.blit(coin, (960, 0))
-        screen.blit(showmoney, (1000, 0))
 
 
         costDur = font.render(f"Цена: {5 + LEVEL_DUR * 5}", True, textcolor)
