@@ -363,11 +363,15 @@ def EndGame():
 
     global SCORE, PREV_BEST
     font = pygame.font.Font(None, 50)
-    newBest = font.render(f"", True, (0, 0, 0))
+    newBest = font.render(f"", True, (255, 216, 0))
+    money = font.render(f"Монет получено: ", True, (255, 216, 0))
+    current = font.render(f"Счет: {SCORE}", True, (255, 216, 0))
 
     if SCORE > PREV_BEST:
         # PREV_BEST = SCORE TODO СНЯТЬ этот коммент
-        newBest = font.render(f"Новый рекорд: {SCORE}!", True, (255, 255, 255))
+        newBest = font.render(f"Новый рекорд: {SCORE}!", True, (255, 216, 0))
+        current = font.render(f"", True, (255, 216, 0))
+
 
 
     EndBackground = screen.copy()
@@ -376,8 +380,10 @@ def EndGame():
     butts = pygame.sprite.Group()
 
     MenuButton = Button('Menu', 480, 500)
+    MenuButton.rect.x = 600 - MenuButton.rect.width//2
     butts.add(MenuButton)
     AgainButton = Button('Replay', 480, 400)
+    AgainButton.rect.x = 600 - AgainButton.rect.width // 2
     butts.add(AgainButton)
 
     while runningEndGame:
@@ -386,7 +392,10 @@ def EndGame():
 
         screen.blit(EndBackground, (0, 0))
 
-        screen.blit(newBest, (450, 300))
+        screen.blit(newBest, (600 - newBest.get_width()//2, 300))
+        screen.blit(current, (600 - current.get_width()//2, 300))
+        screen.blit(money, (600 - money.get_width() // 2, 350))
+
 
         butts.draw(screen)
 
