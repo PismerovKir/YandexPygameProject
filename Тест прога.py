@@ -53,7 +53,7 @@ def load_image(name, color_key=None):
         image = image.convert_alpha()
     return image
 
-pygame.display.set_icon(load_image('icon.png'))
+pygame.display.set_icon(load_image('minKorabl.png'))
 
 
 class SpaceShip(pygame.sprite.Sprite):
@@ -377,8 +377,7 @@ def EndGame():
 
     MenuButton = Button('Menu', 480, 500)
     butts.add(MenuButton)
-    #TODO Сделать кнопку заново
-    AgainButton = Button('Play', 480, 400)
+    AgainButton = Button('Replay', 480, 400)
     butts.add(AgainButton)
 
     while runningEndGame:
@@ -486,10 +485,10 @@ def StartGame():
         ShowStartBackground()
 
         showmoney = font.render(f" : {MONEY}", True, (255, 216, 0))
-        screen.blit(showmoney, (1000, 0))
+        screen.blit(showmoney, (WIDTH - showmoney.get_width() - 5, 0))
         screen.blit(text, (0, 0))
 
-        screen.blit(coin, (960, 0))
+        screen.blit(coin, (WIDTH - showmoney.get_width() - 50, 0))
 
 
         start_sprites.draw(screen)
@@ -580,9 +579,9 @@ def UpgradeGame():
         screen.blit(titleDmg, (958, 100))
 
         showmoney = font.render(f" : {MONEY}", True, (255, 216, 0))
+        screen.blit(showmoney, (WIDTH - showmoney.get_width() - 5, 0))
+        screen.blit(coin, (WIDTH - showmoney.get_width() - 50, 0))
 
-        screen.blit(coin, (960, 0))
-        screen.blit(showmoney, (1000, 0))
 
 
         costDur = font.render(f"Цена: {5 + LEVEL_DUR * 5}", True, textcolor)
@@ -778,21 +777,37 @@ def Game():
 # Загружаем данные
 try:
     file = open('data/gamedata.txt', 'r')
+    data = file.readlines()
+    PREV_BEST = int(data[0])
+    MONEY = int(data[1])
+    LEVEL_DUR, LEVEL_DMG, LEVEL_SPD = int(data[2]), int(data[3]), int(data[4])
+    file.close()
 except FileNotFoundError:
    file = open('data/gamedata.txt', 'w')
-   file.write('''0
+   file.write('''-1
 0
 0
 0
 0''')
    file.close()
-   file = open('data/gamedata.txt', 'r')
+except Exception:
+    file = open('data/gamedata.txt', 'w')
+    file.write('''-2
+    0
+    0
+    0
+    0''')
+    file.close()
 
+file = open('data/gamedata.txt', 'r')
 data = file.readlines()
 PREV_BEST = int(data[0])
 MONEY = int(data[1])
 LEVEL_DUR, LEVEL_DMG, LEVEL_SPD = int(data[2]), int(data[3]), int(data[4])
 file.close()
+
+
+
 
 
 spaceship = SpaceShip()
