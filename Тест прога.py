@@ -53,7 +53,7 @@ def load_image(name, color_key=None):
         image = image.convert_alpha()
     return image
 
-pygame.display.set_icon(load_image('icon.png'))
+pygame.display.set_icon(load_image('minKorabl.png'))
 
 
 class SpaceShip(pygame.sprite.Sprite):
@@ -377,8 +377,7 @@ def EndGame():
 
     MenuButton = Button('Menu', 480, 500)
     butts.add(MenuButton)
-    #TODO Сделать кнопку заново
-    AgainButton = Button('Play', 480, 400)
+    AgainButton = Button('Replay', 480, 400)
     butts.add(AgainButton)
 
     while runningEndGame:
