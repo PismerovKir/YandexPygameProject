@@ -62,6 +62,10 @@ pew.set_volume(0.4)
 alienpew = pygame.mixer.Sound("data/alienpew.wav")
 alienpew.set_volume(0.4)
 
+buyUpgrade = pygame.mixer.Sound("data/buyUpgrade.wav")
+noMoney = pygame.mixer.Sound("data/noMoney.wav")
+
+
 
 def load_image(name, color_key=None):
     fullname = os.path.join('data', name)
@@ -614,7 +618,7 @@ def StartGame():
 
 def UpgradeGame():
 
-    global MONEY, LEVEL_SPD, LEVEL_DUR, LEVEL_DMG
+    global MONEY, LEVEL_SPD, LEVEL_DUR, LEVEL_DMG, SOUND
 
     upgrade_sprites = pygame.sprite.Group()
 
@@ -713,18 +717,33 @@ def UpgradeGame():
                     if MONEY >= LEVEL_DUR * 5 + 5:
                         MONEY -= LEVEL_DUR * 5 + 5
                         LEVEL_DUR += 1
+                        if SOUND:
+                            buyUpgrade.play()
+                    else:
+                        if SOUND:
+                            noMoney.play()
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if UpgradeDMGButton.rect.collidepoint(event.pos):
                     if MONEY >= LEVEL_DMG * 5 + 5:
                         MONEY -= LEVEL_DMG * 5 + 5
                         LEVEL_DMG += 1
+                        if SOUND:
+                            buyUpgrade.play()
+                    else:
+                        if SOUND:
+                            noMoney.play()
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if UpgradeSPDButton.rect.collidepoint(event.pos):
                     if MONEY >= LEVEL_SPD * 5 + 5:
                         MONEY -= LEVEL_SPD * 5 + 5
                         LEVEL_SPD += 1
+                        if SOUND:
+                            buyUpgrade.play()
+                    else:
+                        if SOUND:
+                            noMoney.play()
 
             if event.type == pygame.KEYDOWN:
                 if pygame.key.get_pressed()[pygame.K_ESCAPE]:
