@@ -6,6 +6,27 @@ from os import path
 
 pygame.init()
 # pygame.mixer.init()
+# TODO Здесь будет список всех файлов, которые есть в проге. Сначала их подгружаем, и если файл не найден то остальная
+#  прога не работает
+# files = ['alien.png', 'alienBang.png', 'alienbang1.png', 'alienbang2.png', 'alienbang3.png', 'alienbang4.png',
+#          'alienbang5.png', 'alienpew.wav', 'bip.wav', 'body.png', 'ButtoContinue.png', 'ButtonContinue.png',
+#          'ButtonExit.png', 'ButtonGoBack.png', 'ButtonMenu.png', 'ButtonMusicOff.png', 'ButtonMusicOn.png',
+#          'ButtonPlay.png', 'ButtonPlus.png', 'ButtonReplay.png', 'ButtonUpgrade.png', 'Coin.png', 'count.wav',
+#          'Cursor.png', 'ExitButton.png', 'explosion.png', 'explosion1.png', 'explosion2.png', 'explosion3.png',
+#          'explosion4.png', 'fly_right.wav', 'fon.png', 'fon2.png', 'fon3.png', 'gamedata.txt', 'go.wav', 'gun.png',
+#          'Health.png', 'icon.png', 'korabl1.png', 'korabl2.png', 'korablLeft1.png', 'korablLeft2.png',
+#          'korablRight1.png', 'korablRight2.png', 'LaserBulletAlien.png', 'LaserBulletLong.png', 'meteor1.png',
+#          'meteor2.png', 'meteor3.png', 'meteorBang.png', 'meteorbang1.png', 'meteorbang2.png', 'meteorbang3.png',
+#          'meteorbang4.png', 'meteorbang5.png', 'minKorabl.png', 'motor.png', 'musicPause.mp3', 'music_fon.mp3',
+#          'one.png', 'pewpew.wav', 'ShieldRight.png', 'Soundoff.png', 'Soundon.png', 'StartMenuFon.png', 'three.png',
+#          'two.png', 'vzriv1.png', 'Ссылка.txt']
+#
+# for elem in files:
+#     try:
+#         file = open(f'data/{elem}', 'r')
+#     except FileNotFoundError:
+#         print(f'Файл {elem} не найден')
+
 
 WIDTH = 1200
 HEIGHT = 800
