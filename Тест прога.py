@@ -8,6 +8,7 @@ pygame.init()
 # pygame.mixer.init()
 # TODO Здесь будет список всех файлов, которые есть в проге. Сначала их подгружаем, и если файл не найден то остальная
 #  прога не работает
+# files = [f for f in os.listdir(data)]
 # files = ['alien.png', 'alienBang.png', 'alienbang1.png', 'alienbang2.png', 'alienbang3.png', 'alienbang4.png',
 #          'alienbang5.png', 'alienpew.wav', 'bip.wav', 'body.png', 'ButtoContinue.png', 'ButtonContinue.png',
 #          'ButtonExit.png', 'ButtonGoBack.png', 'ButtonMenu.png', 'ButtonMusicOff.png', 'ButtonMusicOn.png',
@@ -50,9 +51,9 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Космострелялка')
 clock = pygame.time.Clock()
 
-menuMusic = pygame.mixer.music
-menuMusic.load("data/music_fon.mp3")
-pygame.mixer.music.set_volume(70)
+MusicPlayer = pygame.mixer.music
+MusicPlayer.load("data/music_fon.mp3")
+MusicPlayer.set_volume(70)
 
 # pew = pygame.mixer.Channel(0)
 pew = pygame.mixer.Sound("data/pewpew.wav")
@@ -332,6 +333,7 @@ def ShowCursor():
 
 
 def PauseGame():
+    MusicPlayer.pause()
     backgr = screen.copy()
     runningPause = True
     ContinueButton = Button('Continue', 480, 300)
@@ -358,9 +360,11 @@ def PauseGame():
                 return True
             if event.type == pygame.KEYDOWN:
                 if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                    MusicPlayer.unpause()
                     return
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if ContinueButton.rect.collidepoint(event.pos):
+                    MusicPlayer.unpause()
                     return
 
 
@@ -381,6 +385,7 @@ def PauseGame():
 
 
 def EndGame():
+    MusicPlayer.stop()
 
     global SCORE, PREV_BEST
     font = pygame.font.Font(None, 50)
@@ -472,9 +477,10 @@ def StartGame():
     global MUSIC
 
     start_sprites = pygame.sprite.Group()
+    MusicPlayer.load('data/music_fon.mp3')
 
-    if not menuMusic.get_busy():
-        menuMusic.play(-1)
+    if not MusicPlayer.get_busy():
+        MusicPlayer.play(-1)
 
     PlayButton = Button('Play', 490, 260)
     UpgradeButton = Button('Upgrade', 490, 360)
@@ -500,12 +506,12 @@ def StartGame():
         if MUSIC:
             musicButton.kill()
             musicButton = Button('MusicOff', 0, HEIGHT - 40)
-            if not menuMusic.get_busy():
-                menuMusic.play(-1)
+            if not MusicPlayer.get_busy():
+                MusicPlayer.play(-1)
         else:
             musicButton.kill()
             musicButton = Button('MusicOn', 0, HEIGHT - 40)
-            menuMusic.stop()
+            MusicPlayer.stop()
 
         start_sprites.add(musicButton)
 
@@ -533,7 +539,7 @@ def StartGame():
                 return True
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if PlayButton.rect.collidepoint(event.pos):
-                    menuMusic.stop()
+                    MusicPlayer.stop()
                     if Game():
                         return True
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -724,6 +730,9 @@ def Game():
     count.play()
     clock.tick(1)
     go.play()
+
+    MusicPlayer.load('data/music_fight.mp3')
+    MusicPlayer.play(-1)
 
 
     while runningGame:
