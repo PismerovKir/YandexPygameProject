@@ -333,11 +333,14 @@ def ShowCursor():
 
 
 def PauseGame():
+    global  MUSIC
     MusicPlayer.pause()
     backgr = screen.copy()
     runningPause = True
     ContinueButton = Button('Continue', 480, 300)
     MenuButton = Button('Menu', 480, 400)
+
+    musicButton = Button('MusicOn', 0, HEIGHT - 40)
     butts = pygame.sprite.Group()
     butts.add(ContinueButton)
     butts.add(MenuButton)
@@ -348,6 +351,17 @@ def PauseGame():
 
         screen.fill(BLACK)
         screen.blit(backgr, (0, 0))
+
+        if MUSIC:
+            musicButton.kill()
+            musicButton = Button('MusicOff', 0, HEIGHT - 40)
+            if not MusicPlayer.get_busy():
+                MusicPlayer.play(-1)
+        else:
+            musicButton.kill()
+            musicButton = Button('MusicOn', 0, HEIGHT - 40)
+            MusicPlayer.stop()
+        butts.add(musicButton)
 
         butts.draw(screen)
 
@@ -375,6 +389,12 @@ def PauseGame():
                         elem.kill()
                     if StartGame():
                         return True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if musicButton.rect.collidepoint(event.pos):
+                    if MUSIC:
+                        MUSIC = False
+                    else:
+                        MUSIC = True
 
 
 
@@ -680,7 +700,7 @@ def UpgradeGame():
 
 def Game():
 
-    global SCORE, spaceship
+    global SCORE, spaceship, MUSIC
     SCORE = 0
     runningGame = True
 
@@ -732,7 +752,10 @@ def Game():
     go.play()
 
     MusicPlayer.load('data/music_fight.mp3')
-    MusicPlayer.play(-1)
+
+    if MUSIC:
+        MusicPlayer.play(-1)
+
 
 
     while runningGame:
