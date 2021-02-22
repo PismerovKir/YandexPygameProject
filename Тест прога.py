@@ -41,7 +41,7 @@ LEVEL_SPD = 0
 PREV_BEST = 0
 MONEY = 0
 MUSIC = True
-
+SOUND = True
 
 pygame.mouse.set_visible(False)
 
@@ -143,7 +143,8 @@ class SpaceShip(pygame.sprite.Sprite):
                 bul = LaserBulletLong(self.rect.right - 66, self.rect.top + 26)
                 all_sprites.add(bul)
                 bullets.add(bul)
-                pew.play(0)
+                if SOUND:
+                    pew.play(0)
 
 
         if self.rect.right > WIDTH:
@@ -258,7 +259,8 @@ class Alien(pygame.sprite.Sprite):
             enemybullet = LaserBulletAlien(self.rect.left, self.rect.centery)
             all_sprites.add(enemybullet)
             enemybullets.add(enemybullet)
-            alienpew.play()
+            if SOUND:
+                alienpew.play()
 
         if self.rect.centery < spaceship.rect.centery:
             self.rect.y += self.speedy
@@ -333,14 +335,17 @@ def ShowCursor():
 
 
 def PauseGame():
-    global  MUSIC
+    global MUSIC, SOUND
+
     MusicPlayer.pause()
     backgr = screen.copy()
     runningPause = True
     ContinueButton = Button('Continue', 480, 300)
     MenuButton = Button('Menu', 480, 400)
 
-    musicButton = Button('MusicOn', 0, HEIGHT - 40)
+    musicButton = Button('MusicOn', 45, HEIGHT - 40)
+    soundButton = Button('SoundOn', 0, HEIGHT - 40)
+
     butts = pygame.sprite.Group()
     butts.add(ContinueButton)
     butts.add(MenuButton)
@@ -354,13 +359,19 @@ def PauseGame():
 
         if MUSIC:
             musicButton.kill()
-            musicButton = Button('MusicOff', 0, HEIGHT - 40)
-            if not MusicPlayer.get_busy():
-                MusicPlayer.play(-1)
+            musicButton = Button('MusicOff', 45, HEIGHT - 40)
         else:
             musicButton.kill()
-            musicButton = Button('MusicOn', 0, HEIGHT - 40)
-            MusicPlayer.stop()
+            musicButton = Button('MusicOn', 45, HEIGHT - 40)
+
+        if SOUND:
+            soundButton.kill()
+            soundButton = Button('SoundOff', 0, HEIGHT - 40)
+        else:
+            soundButton.kill()
+            soundButton = Button('SoundOn', 0, HEIGHT - 40)
+
+        butts.add(soundButton)
         butts.add(musicButton)
 
         butts.draw(screen)
@@ -395,6 +406,13 @@ def PauseGame():
                         MUSIC = False
                     else:
                         MUSIC = True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if soundButton.rect.collidepoint(event.pos):
+                    if SOUND:
+                        SOUND = False
+                    else:
+                        SOUND = True
+
 
 
 
@@ -494,7 +512,7 @@ def ShowStartBackground():
 
 def StartGame():
 
-    global MUSIC
+    global MUSIC, SOUND
 
     start_sprites = pygame.sprite.Group()
     MusicPlayer.load('data/music_fon.mp3')
@@ -506,7 +524,8 @@ def StartGame():
     UpgradeButton = Button('Upgrade', 490, 360)
     ExitButton = Button('Exit', 490, 460)
 
-    musicButton = Button('MusicOn', 0, HEIGHT - 40)
+    musicButton = Button('MusicOn', 45, HEIGHT - 40)
+    soundButton = Button('SoundOn', 0, HEIGHT - 40)
 
 
     start_sprites.add(PlayButton)
@@ -525,14 +544,22 @@ def StartGame():
 
         if MUSIC:
             musicButton.kill()
-            musicButton = Button('MusicOff', 0, HEIGHT - 40)
+            musicButton = Button('MusicOff', 45, HEIGHT - 40)
             if not MusicPlayer.get_busy():
                 MusicPlayer.play(-1)
         else:
             musicButton.kill()
-            musicButton = Button('MusicOn', 0, HEIGHT - 40)
+            musicButton = Button('MusicOn', 45, HEIGHT - 40)
             MusicPlayer.stop()
 
+        if SOUND:
+            soundButton.kill()
+            soundButton = Button('SoundOff', 0, HEIGHT - 40)
+        else:
+            soundButton.kill()
+            soundButton = Button('SoundOn', 0, HEIGHT - 40)
+
+        start_sprites.add(soundButton)
         start_sprites.add(musicButton)
 
 
@@ -575,6 +602,12 @@ def StartGame():
                         MUSIC = False
                     else:
                         MUSIC = True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if soundButton.rect.collidepoint(event.pos):
+                    if SOUND:
+                        SOUND = False
+                    else:
+                        SOUND = True
 
 
 
@@ -728,7 +761,8 @@ def Game():
     all_sprites.draw(screen)
     three = load_image('three.png')
     screen.blit(three, (480, 200))
-    count.play()
+    if SOUND:
+        count.play()
     pygame.display.flip()
     clock.tick(1)
 
@@ -737,7 +771,8 @@ def Game():
     all_sprites.draw(screen)
     two = load_image('two.png')
     screen.blit(two, (480, 200))
-    count.play()
+    if SOUND:
+        count.play()
     pygame.display.flip()
     clock.tick(1)
 
@@ -747,9 +782,11 @@ def Game():
     one = load_image('one.png')
     screen.blit(one, (480, 200))
     pygame.display.flip()
-    count.play()
+    if SOUND:
+        count.play()
     clock.tick(1)
-    go.play()
+    if SOUND:
+        go.play()
 
     MusicPlayer.load('data/music_fight.mp3')
 
