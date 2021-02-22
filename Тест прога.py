@@ -777,21 +777,37 @@ def Game():
 # Загружаем данные
 try:
     file = open('data/gamedata.txt', 'r')
+    data = file.readlines()
+    PREV_BEST = int(data[0])
+    MONEY = int(data[1])
+    LEVEL_DUR, LEVEL_DMG, LEVEL_SPD = int(data[2]), int(data[3]), int(data[4])
+    file.close()
 except FileNotFoundError:
    file = open('data/gamedata.txt', 'w')
-   file.write('''0
+   file.write('''-1
 0
 0
 0
 0''')
    file.close()
-   file = open('data/gamedata.txt', 'r')
+except Exception:
+    file = open('data/gamedata.txt', 'w')
+    file.write('''-2
+    0
+    0
+    0
+    0''')
+    file.close()
 
+file = open('data/gamedata.txt', 'r')
 data = file.readlines()
 PREV_BEST = int(data[0])
 MONEY = int(data[1])
 LEVEL_DUR, LEVEL_DMG, LEVEL_SPD = int(data[2]), int(data[3]), int(data[4])
 file.close()
+
+
+
 
 
 spaceship = SpaceShip()
