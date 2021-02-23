@@ -435,7 +435,7 @@ def PauseGame():
 
 
 
-
+#Вадим ломатель
 
 
 def EndGame():
