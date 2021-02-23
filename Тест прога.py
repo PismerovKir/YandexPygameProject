@@ -346,7 +346,7 @@ def ShowCursor():
 def PauseGame():
     global MUSIC, SOUND
 
-    # TODO Во время паузы все звуки отключаются
+    # TODO Во время паузы все звуки отключаются помогите коммит
 
     alienpew.stop()
     pew.stop()
