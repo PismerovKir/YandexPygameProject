@@ -341,7 +341,9 @@ def ShowCursor():
 def PauseGame():
     global MUSIC, SOUND
 
-    MusicPlayer.pause()
+    alienpew.stop()
+    pew.stop()
+
     backgr = screen.copy()
     runningPause = True
     ContinueButton = Button('Continue', 480, 300)
@@ -364,9 +366,13 @@ def PauseGame():
         if MUSIC:
             musicButton.kill()
             musicButton = Button('MusicOff', 45, HEIGHT - 40)
+            if not MusicPlayer.get_busy():
+                MusicPlayer.play(-1)
+
         else:
             musicButton.kill()
             musicButton = Button('MusicOn', 45, HEIGHT - 40)
+            MusicPlayer.stop()
 
         if SOUND:
             soundButton.kill()
@@ -389,11 +395,9 @@ def PauseGame():
                 return True
             if event.type == pygame.KEYDOWN:
                 if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-                    MusicPlayer.unpause()
                     return
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if ContinueButton.rect.collidepoint(event.pos):
-                    MusicPlayer.unpause()
                     return
 
 
@@ -427,7 +431,6 @@ def PauseGame():
 
 
 def EndGame():
-    MusicPlayer.stop()
 
     global SCORE, PREV_BEST
     font = pygame.font.Font(None, 50)
@@ -817,15 +820,48 @@ def Game():
     while runningGame:
         clock.tick(FPS)
 
-        if spaceship.health < 0:
+        if not MUSIC:
+            MusicPlayer.stop()
+
+
+        if spaceship.health < 1:
+            MusicPlayer.stop()
+            alienpew.stop()
+            pew.stop()
             screen.fill(BLACK)
             screen.blit(background, background_rect)
             screen.blit(background2, background_rect2)
             bullets.draw(screen)
             enemybullets.draw(screen)
             enemy.draw(screen)
+            backg = screen.copy()
+            counter = 50
             x, y = spaceship.rect.centerx, spaceship.rect.centery
-            screen.blit(load_image('explosion.png'), (x - 50, y - 50))
+            if SOUND:
+                pygame.mixer.Sound('data/lastBang.wav').play()
+            while counter > 0:
+                screen.blit(backg, (0, 0))
+                clock.tick(100)
+                if counter == 50:
+                    screen.blit(load_image('explosion5.png'), (x - 50, y - 50))
+                    pygame.display.flip()
+                if counter == 40:
+                    screen.blit(load_image('explosion4.png'), (x - 50, y - 50))
+                    pygame.display.flip()
+                if counter == 30:
+                    screen.blit(load_image('explosion3.png'), (x - 50, y - 50))
+                    pygame.display.flip()
+                if counter == 20:
+                    screen.blit(load_image('explosion2.png'), (x - 50, y - 50))
+                    pygame.display.flip()
+                if counter == 10:
+                    screen.blit(load_image('explosion1.png'), (x - 50, y - 50))
+                    pygame.display.flip()
+                counter -= 1
+            screen.blit(load_image('explosion1.png'), (x - 50, y - 50))
+
+
+
             for sprite in all_sprites:
                 sprite.kill()
             if EndGame():
