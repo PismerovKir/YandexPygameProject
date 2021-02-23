@@ -65,6 +65,8 @@ alienpew.set_volume(0.4)
 buyUpgrade = pygame.mixer.Sound("data/buyUpgrade.wav")
 noMoney = pygame.mixer.Sound("data/noMoney.wav")
 
+PlayerHit = pygame.mixer.Sound("data/PlayerHit.wav")
+
 
 
 def load_image(name, color_key=None):
@@ -212,6 +214,9 @@ class LaserBulletAlien(pygame.sprite.Sprite):
             touched = pygame.sprite.spritecollideany(self, Player)
             if pygame.sprite.collide_mask(self, touched):
                 touched.health -= self.damage
+                if SOUND:
+                    PlayerHit.play()
+
                 self.kill()
 
         self.rect.x -= self.speed
@@ -341,8 +346,11 @@ def ShowCursor():
 def PauseGame():
     global MUSIC, SOUND
 
+    # TODO Во время паузы все звуки отключаются
+
     alienpew.stop()
     pew.stop()
+    PlayerHit.stop()
 
     backgr = screen.copy()
     runningPause = True
