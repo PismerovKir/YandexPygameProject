@@ -222,11 +222,11 @@ class Alien(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = load_image('alien.png')
         self.rect = self.image.get_rect()
-        self.bangimage1 = load_image('alienbang1.png')
-        self.bangimage2 = load_image('alienbang2.png')
+        self.bangimage1 = load_image('alienbang5.png')
+        self.bangimage2 = load_image('alienbang4.png')
         self.bangimage3 = load_image('alienbang3.png')
-        self.bangimage4 = load_image('alienbang4.png')
-        self.bangimage5 = load_image('alienbang5.png')
+        self.bangimage4 = load_image('alienbang2.png')
+        self.bangimage5 = load_image('alienbang1.png')
         self.rect.x = WIDTH
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
         self.speedy = 1
@@ -278,11 +278,11 @@ class Meteor(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = load_image(f'meteor{random.randint(1, 3)}.png')
-        self.bangimage1 = load_image('meteorBang1.png')
-        self.bangimage2 = load_image('meteorBang2.png')
+        self.bangimage1 = load_image('meteorBang5.png')
+        self.bangimage2 = load_image('meteorBang4.png')
         self.bangimage3 = load_image('meteorBang3.png')
-        self.bangimage4 = load_image('meteorBang4.png')
-        self.bangimage5 = load_image('meteorBang5.png')
+        self.bangimage4 = load_image('meteorBang2.png')
+        self.bangimage5 = load_image('meteorBang1.png')
 
         self.rect = self.image.get_rect()
         self.rect.x = WIDTH
