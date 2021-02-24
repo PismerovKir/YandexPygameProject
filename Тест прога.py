@@ -317,6 +317,8 @@ class Meteor(pygame.sprite.Sprite):
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
+            if SOUND:
+                pygame.mixer.Sound('data/meteorbang.wav').play()
             self.image = self.bangimage1
             self.deathCounter = 40
 
