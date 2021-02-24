@@ -67,6 +67,14 @@ noMoney = pygame.mixer.Sound("data/noMoney.wav")
 
 PlayerHit = pygame.mixer.Sound("data/PlayerHit.wav")
 
+alienbang = pygame.mixer.Sound('data/alienbang.wav')
+
+meteorbang = pygame.mixer.Sound('data/meteorbang.wav')
+
+meteorhit = pygame.mixer.Sound('data/meteorhit.wav')
+
+meteorbangplayer = pygame.mixer.Sound('data/meteorbangplayer.wav')
+
 
 
 def load_image(name, color_key=None):
@@ -190,6 +198,9 @@ class LaserBulletLong(pygame.sprite.Sprite):
             if pygame.sprite.collide_mask(self, touched):
                 touched.health -= self.damage
                 self.kill()
+                if SOUND:
+                    if type(touched) == Meteor:
+                        meteorhit.play()
 
 
 
@@ -243,11 +254,10 @@ class Alien(pygame.sprite.Sprite):
         self.prev_shot = 0
 
     def update(self):
-        global KILLEDALIENS
+        global KILLEDALIENS, MONEYGET
 
         if self.rect.right < 0:
             self.kill()
-        self.rect.x -= self.speedx
         self.deathCounter -= 1
         if self.deathCounter == 32:
             self.image = self.bangimage2
@@ -261,9 +271,13 @@ class Alien(pygame.sprite.Sprite):
 
         if self.deathCounter == 0:
             KILLEDALIENS += 1
+            #TODO Увеличивать деньги за убийство со временем
+            MONEYGET += 2
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
+            if SOUND:
+                alienbang.play()
             self.image = self.bangimage1
             self.deathCounter = 40
 
@@ -275,6 +289,11 @@ class Alien(pygame.sprite.Sprite):
             enemybullets.add(enemybullet)
             if SOUND:
                 alienpew.play()
+
+        if self.rect.left - spaceship.rect.right > 150:
+            self.rect.x -= self.speedx
+        else:
+            self.rect.x = spaceship.rect.right + 150
 
         #Спидран по ии поехали
         # +- 20 в range(...) это зазор между пулей и пришельцем
@@ -308,9 +327,6 @@ class Alien(pygame.sprite.Sprite):
                 self.rect.y += self.speedy
             if self.rect.centery > spaceship.rect.centery:
                 self.rect.y -= self.speedy
-
-
-
 
 
 
@@ -351,7 +367,7 @@ class Meteor(pygame.sprite.Sprite):
         self.deathCounter = -1
 
     def update(self):
-        global KILLEDMETEORS
+        global KILLEDMETEORS, MONEYGET
         self.deathCounter -= 1
         if self.deathCounter == 32:
             self.image = self.bangimage2
@@ -367,11 +383,20 @@ class Meteor(pygame.sprite.Sprite):
 
         if self.deathCounter == 0:
             KILLEDMETEORS += 1
+            MONEYGET += 1
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
             if SOUND:
-                pygame.mixer.Sound('data/meteorbang.wav').play()
+                meteorbang.play()
+            self.image = self.bangimage1
+            self.deathCounter = 40
+
+        if pygame.sprite.collide_mask(self, spaceship) and self.deathCounter < 0:
+            spaceship.health -= self.damage
+            self.damage = 0
+            if SOUND:
+                meteorbangplayer.play()
             self.image = self.bangimage1
             self.deathCounter = 40
 
@@ -409,6 +434,9 @@ def PauseGame():
     alienpew.stop()
     pew.stop()
     PlayerHit.stop()
+    alienbang.stop()
+    meteorbang.stop()
+    meteorhit.stop()
 
     backgr = screen.copy()
     runningPause = True
@@ -498,16 +526,18 @@ def PauseGame():
 
 def EndGame():
 
-    global SCORE, PREV_BEST
+    global SCORE, PREV_BEST, MONEY, MONEYGET
     font = pygame.font.Font(None, 50)
     newBest = font.render(f"", True, (255, 216, 0))
-    money = font.render(f"Монет получено: ", True, (255, 216, 0))
+    money = font.render(f"Монет получено: {MONEYGET}", True, (255, 216, 0))
     current = font.render(f"Счет: {SCORE}", True, (255, 216, 0))
 
     if SCORE > PREV_BEST:
         # PREV_BEST = SCORE TODO СНЯТЬ этот коммент
         newBest = font.render(f"Новый рекорд: {SCORE}!", True, (255, 216, 0))
         current = font.render(f"", True, (255, 216, 0))
+
+    MONEY += MONEYGET
 
 
 
@@ -822,6 +852,8 @@ def UpgradeGame():
 def Game():
 
     global SCORE, spaceship, MUSIC, KILLEDALIENS, KILLEDMETEORS
+    KILLEDALIENS = 0
+    KILLEDMETEORS = 0
     SCORE = 0
     runningGame = True
 
@@ -1063,6 +1095,7 @@ aliens = pygame.sprite.Group()
 meteors = pygame.sprite.Group()
 KILLEDALIENS = 0
 KILLEDMETEORS = 0
+MONEYGET = 0
 
 
 
