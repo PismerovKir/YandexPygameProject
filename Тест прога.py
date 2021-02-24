@@ -243,6 +243,7 @@ class Alien(pygame.sprite.Sprite):
         self.prev_shot = 0
 
     def update(self):
+        global KILLEDALIENS
 
         if self.rect.right < 0:
             self.kill()
@@ -259,6 +260,7 @@ class Alien(pygame.sprite.Sprite):
 
 
         if self.deathCounter == 0:
+            KILLEDALIENS += 1
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
@@ -327,10 +329,10 @@ class Meteor(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = WIDTH
         if random.randint(1, 2) == 1:
-            self.rect.y = random.randrange(50, 600)
+            self.rect.y = random.randrange(0, 400)
             self.speedy = random.randint(0, 1)
         else:
-            self.rect.y = random.randrange(50, 600)
+            self.rect.y = random.randrange(400, 800)
             self.speedy = random.randint(-1, 0)
 
         # if self.speedy:
@@ -349,6 +351,7 @@ class Meteor(pygame.sprite.Sprite):
         self.deathCounter = -1
 
     def update(self):
+        global KILLEDMETEORS
         self.deathCounter -= 1
         if self.deathCounter == 32:
             self.image = self.bangimage2
@@ -363,6 +366,7 @@ class Meteor(pygame.sprite.Sprite):
         self.rect.y += self.speedy
 
         if self.deathCounter == 0:
+            KILLEDMETEORS += 1
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
@@ -817,7 +821,7 @@ def UpgradeGame():
 
 def Game():
 
-    global SCORE, spaceship, MUSIC
+    global SCORE, spaceship, MUSIC, KILLEDALIENS, KILLEDMETEORS
     SCORE = 0
     runningGame = True
 
@@ -826,6 +830,9 @@ def Game():
     Player.add(spaceship)
     all_sprites.add(spaceship)
     prev_alien = 0
+
+    killedAliens = load_image('killedAliensCounter.png')
+    killedMeteors = load_image('killedMeteorsCounter.png')
 
 
     background = load_image('fon3.png')
@@ -963,6 +970,7 @@ def Game():
         if background_rect2.right == 0:
             background_rect2.x = WIDTH
 
+        #TODO ускорение заднего фона тоже сделать
         background_rect.x -= 4
         background_rect2.x -= 4
 
@@ -986,6 +994,18 @@ def Game():
         cur_health = font.render(f": {spaceship.health}", True, (0, 127, 14))
         screen.blit(health, (0, 0))
         screen.blit(cur_health, (30, 0))
+
+        #TODO Белый цвет счетчика не очень, надо поменять
+        killedAlienstext = font.render(f": {KILLEDALIENS}", True, (255, 255, 255))
+        screen.blit(killedAlienstext, (1200 - killedAlienstext.get_width(), 0))
+        screen.blit(killedAliens, (1200 - killedAlienstext.get_width() - killedAliens.get_width() - 5, 0))
+
+        killedMeteorstext = font.render(f": {KILLEDMETEORS}", True, (255, 255, 255))
+        screen.blit(killedMeteorstext,
+                    (1200 - killedAlienstext.get_width() - killedAliens.get_width() - killedMeteorstext.get_width() - 10, 0))
+        screen.blit(killedMeteors, (
+        1200 - killedAlienstext.get_width() - killedAliens.get_width() - killedMeteorstext.get_width() - killedMeteors.get_width() - 15,
+        0))
 
         pygame.display.flip()
 
@@ -1041,6 +1061,8 @@ enemybullets = pygame.sprite.Group()
 enemy = pygame.sprite.Group()
 aliens = pygame.sprite.Group()
 meteors = pygame.sprite.Group()
+KILLEDALIENS = 0
+KILLEDMETEORS = 0
 
 
 
