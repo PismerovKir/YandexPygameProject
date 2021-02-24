@@ -67,6 +67,12 @@ noMoney = pygame.mixer.Sound("data/noMoney.wav")
 
 PlayerHit = pygame.mixer.Sound("data/PlayerHit.wav")
 
+alienbang = pygame.mixer.Sound('data/alienbang.wav')
+
+meteorbang = pygame.mixer.Sound('data/meteorbang.wav')
+
+meteorhit = pygame.mixer.Sound('data/meteorhit.wav')
+
 
 
 def load_image(name, color_key=None):
@@ -190,6 +196,9 @@ class LaserBulletLong(pygame.sprite.Sprite):
             if pygame.sprite.collide_mask(self, touched):
                 touched.health -= self.damage
                 self.kill()
+                if SOUND:
+                    if type(touched) == Meteor:
+                        meteorhit.play()
 
 
 
@@ -247,7 +256,6 @@ class Alien(pygame.sprite.Sprite):
 
         if self.rect.right < 0:
             self.kill()
-        self.rect.x -= self.speedx
         self.deathCounter -= 1
         if self.deathCounter == 32:
             self.image = self.bangimage2
@@ -264,6 +272,8 @@ class Alien(pygame.sprite.Sprite):
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
+            if SOUND:
+                alienbang.play()
             self.image = self.bangimage1
             self.deathCounter = 40
 
@@ -275,6 +285,11 @@ class Alien(pygame.sprite.Sprite):
             enemybullets.add(enemybullet)
             if SOUND:
                 alienpew.play()
+
+        if self.rect.left - spaceship.rect.right > 150:
+            self.rect.x -= self.speedx
+        else:
+            self.rect.x = spaceship.rect.right + 150
 
         #Спидран по ии поехали
         # +- 20 в range(...) это зазор между пулей и пришельцем
@@ -308,9 +323,6 @@ class Alien(pygame.sprite.Sprite):
                 self.rect.y += self.speedy
             if self.rect.centery > spaceship.rect.centery:
                 self.rect.y -= self.speedy
-
-
-
 
 
 
@@ -371,7 +383,7 @@ class Meteor(pygame.sprite.Sprite):
 
         if self.health < 1 and self.deathCounter < 0:
             if SOUND:
-                pygame.mixer.Sound('data/meteorbang.wav').play()
+                meteorbang.play()
             self.image = self.bangimage1
             self.deathCounter = 40
 
@@ -409,6 +421,9 @@ def PauseGame():
     alienpew.stop()
     pew.stop()
     PlayerHit.stop()
+    alienbang.stop()
+    meteorbang.stop()
+    meteorhit.stop()
 
     backgr = screen.copy()
     runningPause = True
