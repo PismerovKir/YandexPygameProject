@@ -822,6 +822,8 @@ def UpgradeGame():
 def Game():
 
     global SCORE, spaceship, MUSIC, KILLEDALIENS, KILLEDMETEORS
+    KILLEDALIENS = 0
+    KILLEDMETEORS = 0
     SCORE = 0
     runningGame = True
 
