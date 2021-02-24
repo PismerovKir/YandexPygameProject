@@ -252,7 +252,7 @@ class Alien(pygame.sprite.Sprite):
         self.prev_shot = 0
 
     def update(self):
-        global KILLEDALIENS
+        global KILLEDALIENS, MONEYGET
 
         if self.rect.right < 0:
             self.kill()
@@ -269,6 +269,8 @@ class Alien(pygame.sprite.Sprite):
 
         if self.deathCounter == 0:
             KILLEDALIENS += 1
+            #TODO Увеличивать деньги за убийство со временем
+            MONEYGET += 2
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
@@ -363,7 +365,7 @@ class Meteor(pygame.sprite.Sprite):
         self.deathCounter = -1
 
     def update(self):
-        global KILLEDMETEORS
+        global KILLEDMETEORS, MONEYGET
         self.deathCounter -= 1
         if self.deathCounter == 32:
             self.image = self.bangimage2
@@ -379,9 +381,18 @@ class Meteor(pygame.sprite.Sprite):
 
         if self.deathCounter == 0:
             KILLEDMETEORS += 1
+            MONEYGET += 1
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
+            if SOUND:
+                meteorbang.play()
+            self.image = self.bangimage1
+            self.deathCounter = 40
+
+        if pygame.sprite.collide_mask(self, spaceship) and self.deathCounter < 0:
+            spaceship.health -= self.damage
+            self.damage = 0
             if SOUND:
                 meteorbang.play()
             self.image = self.bangimage1
@@ -513,16 +524,18 @@ def PauseGame():
 
 def EndGame():
 
-    global SCORE, PREV_BEST
+    global SCORE, PREV_BEST, MONEY, MONEYGET
     font = pygame.font.Font(None, 50)
     newBest = font.render(f"", True, (255, 216, 0))
-    money = font.render(f"Монет получено: ", True, (255, 216, 0))
+    money = font.render(f"Монет получено: {MONEYGET}", True, (255, 216, 0))
     current = font.render(f"Счет: {SCORE}", True, (255, 216, 0))
 
     if SCORE > PREV_BEST:
         # PREV_BEST = SCORE TODO СНЯТЬ этот коммент
         newBest = font.render(f"Новый рекорд: {SCORE}!", True, (255, 216, 0))
         current = font.render(f"", True, (255, 216, 0))
+
+    MONEY += MONEYGET
 
 
 
@@ -1080,6 +1093,7 @@ aliens = pygame.sprite.Group()
 meteors = pygame.sprite.Group()
 KILLEDALIENS = 0
 KILLEDMETEORS = 0
+MONEYGET = 0
 
 
 
