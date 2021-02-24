@@ -73,6 +73,8 @@ meteorbang = pygame.mixer.Sound('data/meteorbang.wav')
 
 meteorhit = pygame.mixer.Sound('data/meteorhit.wav')
 
+meteorbangplayer = pygame.mixer.Sound('data/meteorbangplayer.wav')
+
 
 
 def load_image(name, color_key=None):
@@ -394,7 +396,7 @@ class Meteor(pygame.sprite.Sprite):
             spaceship.health -= self.damage
             self.damage = 0
             if SOUND:
-                meteorbang.play()
+                meteorbangplayer.play()
             self.image = self.bangimage1
             self.deathCounter = 40
 
