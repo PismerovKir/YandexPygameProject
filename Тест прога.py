@@ -856,6 +856,7 @@ def Game():
     KILLEDMETEORS = 0
     SCORE = 0
     runningGame = True
+    MONEYGET = 0
 
 
     spaceship = SpaceShip()
