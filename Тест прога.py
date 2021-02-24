@@ -277,6 +277,7 @@ class Alien(pygame.sprite.Sprite):
         #Спидран по ии поехали
         # +- 20 в range(...) это зазор между пулей и пришельцем
         if bullets:
+            moved = False
             for bullet in bullets:
                 if bullet.rect.left < self.rect.right:
                     if bullet.rect.centery in range(self.rect.top - 20, self.rect.top + self.rect.height // 2 + 20):
@@ -285,15 +286,20 @@ class Alien(pygame.sprite.Sprite):
                                                       self.rect.bottom + 20):
                         self.rect.y -= self.speedy
                     else:
+                        if not moved:
+                            moved = True
+                            if self.rect.centery < spaceship.rect.centery:
+                                self.rect.y += self.speedy
+                            if self.rect.centery > spaceship.rect.centery:
+                                self.rect.y -= self.speedy
+
+                else:
+                    if not moved:
+                        moved = True
                         if self.rect.centery < spaceship.rect.centery:
                             self.rect.y += self.speedy
                         if self.rect.centery > spaceship.rect.centery:
                             self.rect.y -= self.speedy
-                else:
-                    if self.rect.centery < spaceship.rect.centery:
-                        self.rect.y += self.speedy
-                    if self.rect.centery > spaceship.rect.centery:
-                        self.rect.y -= self.speedy
 
         else:
             if self.rect.centery < spaceship.rect.centery:
@@ -941,7 +947,7 @@ def Game():
 
 
         #TODO Ускорить спаун со временем
-        if SCORE - prev_alien > 400 and len(aliens) < 3:
+        if SCORE - prev_alien > 300 and len(aliens) < 3:
             prev_alien = SCORE
             alien = Alien()
             enemy.add(alien)
