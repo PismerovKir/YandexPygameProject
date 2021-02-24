@@ -243,6 +243,10 @@ class Alien(pygame.sprite.Sprite):
         self.prev_shot = 0
 
     def update(self):
+        global KILLEDALIENS
+
+        if self.rect.right < 0:
+            self.kill()
         self.rect.x -= self.speedx
         self.deathCounter -= 1
         if self.deathCounter == 32:
@@ -256,6 +260,7 @@ class Alien(pygame.sprite.Sprite):
 
 
         if self.deathCounter == 0:
+            KILLEDALIENS += 1
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
@@ -271,10 +276,40 @@ class Alien(pygame.sprite.Sprite):
             if SOUND:
                 alienpew.play()
 
-        if self.rect.centery < spaceship.rect.centery:
-            self.rect.y += self.speedy
-        if self.rect.centery > spaceship.rect.centery:
-            self.rect.y -= self.speedy
+        #Спидран по ии поехали
+        # +- 20 в range(...) это зазор между пулей и пришельцем
+        if bullets:
+            moved = False
+            for bullet in bullets:
+                if bullet.rect.left < self.rect.right:
+                    if bullet.rect.centery in range(self.rect.top - 20, self.rect.top + self.rect.height // 2 + 20):
+                        self.rect.y += self.speedy
+                    elif bullet.rect.centery in range(self.rect.top - 20 + self.rect.height // 2,
+                                                      self.rect.bottom + 20):
+                        self.rect.y -= self.speedy
+                    else:
+                        if not moved:
+                            moved = True
+                            if self.rect.centery < spaceship.rect.centery:
+                                self.rect.y += self.speedy
+                            if self.rect.centery > spaceship.rect.centery:
+                                self.rect.y -= self.speedy
+
+                else:
+                    if not moved:
+                        moved = True
+                        if self.rect.centery < spaceship.rect.centery:
+                            self.rect.y += self.speedy
+                        if self.rect.centery > spaceship.rect.centery:
+                            self.rect.y -= self.speedy
+
+        else:
+            if self.rect.centery < spaceship.rect.centery:
+                self.rect.y += self.speedy
+            if self.rect.centery > spaceship.rect.centery:
+                self.rect.y -= self.speedy
+
+
 
 
 
@@ -289,8 +324,24 @@ class Meteor(pygame.sprite.Sprite):
         self.bangimage4 = load_image('meteorBang2.png')
         self.bangimage5 = load_image('meteorBang1.png')
 
+
+        #TODO Сделать ускорение как у всех (от SCORE)
         self.rect = self.image.get_rect()
         self.rect.x = WIDTH
+        if random.randint(1, 2) == 1:
+            self.rect.y = random.randrange(0, 400)
+            self.speedy = random.randint(0, 1)
+        else:
+            self.rect.y = random.randrange(400, 800)
+            self.speedy = random.randint(-1, 0)
+
+        # if self.speedy:
+        #     if self.speedy < 0:
+        #         self.speedy -= SCORE // 2000  #TODO Снять коммент это ускорение метеора на 1 каждые 20 сек
+        #     else:
+        #         self.speedy += SCORE // 2000
+
+
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
         self.speedy = random.randrange(-1, 2)
         self.speedx = 3
@@ -300,6 +351,7 @@ class Meteor(pygame.sprite.Sprite):
         self.deathCounter = -1
 
     def update(self):
+        global KILLEDMETEORS
         self.deathCounter -= 1
         if self.deathCounter == 32:
             self.image = self.bangimage2
@@ -314,11 +366,17 @@ class Meteor(pygame.sprite.Sprite):
         self.rect.y += self.speedy
 
         if self.deathCounter == 0:
+            KILLEDMETEORS += 1
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
+            if SOUND:
+                pygame.mixer.Sound('data/meteorbang.wav').play()
             self.image = self.bangimage1
             self.deathCounter = 40
+
+        if self.rect.right < 0:
+            self.kill()
 
 
 
@@ -346,7 +404,7 @@ def ShowCursor():
 def PauseGame():
     global MUSIC, SOUND
 
-    # TODO Во время паузы все звуки отключаются
+    # TODO Во время паузы все звуки отключаются помогите коммит
 
     alienpew.stop()
     pew.stop()
@@ -763,7 +821,7 @@ def UpgradeGame():
 
 def Game():
 
-    global SCORE, spaceship, MUSIC
+    global SCORE, spaceship, MUSIC, KILLEDALIENS, KILLEDMETEORS
     SCORE = 0
     runningGame = True
 
@@ -771,6 +829,10 @@ def Game():
     spaceship = SpaceShip()
     Player.add(spaceship)
     all_sprites.add(spaceship)
+    prev_alien = 0
+
+    killedAliens = load_image('killedAliensCounter.png')
+    killedMeteors = load_image('killedMeteorsCounter.png')
 
 
     background = load_image('fon3.png')
@@ -887,12 +949,18 @@ def Game():
         if SCORE % 100 == 0:
             meteor = Meteor()
             enemy.add(meteor)
+            meteors.add(meteor)
             all_sprites.add(meteor)
 
-        if SCORE % 100 == 0:
+
+        #TODO Ускорить спаун со временем
+        if SCORE - prev_alien > 300 and len(aliens) < 3:
+            prev_alien = SCORE
             alien = Alien()
             enemy.add(alien)
             all_sprites.add(alien)
+            aliens.add(alien)
+
 
 
 
@@ -902,6 +970,7 @@ def Game():
         if background_rect2.right == 0:
             background_rect2.x = WIDTH
 
+        #TODO ускорение заднего фона тоже сделать
         background_rect.x -= 4
         background_rect2.x -= 4
 
@@ -925,6 +994,18 @@ def Game():
         cur_health = font.render(f": {spaceship.health}", True, (0, 127, 14))
         screen.blit(health, (0, 0))
         screen.blit(cur_health, (30, 0))
+
+        #TODO Белый цвет счетчика не очень, надо поменять
+        killedAlienstext = font.render(f": {KILLEDALIENS}", True, (255, 255, 255))
+        screen.blit(killedAlienstext, (1200 - killedAlienstext.get_width(), 0))
+        screen.blit(killedAliens, (1200 - killedAlienstext.get_width() - killedAliens.get_width() - 5, 0))
+
+        killedMeteorstext = font.render(f": {KILLEDMETEORS}", True, (255, 255, 255))
+        screen.blit(killedMeteorstext,
+                    (1200 - killedAlienstext.get_width() - killedAliens.get_width() - killedMeteorstext.get_width() - 10, 0))
+        screen.blit(killedMeteors, (
+        1200 - killedAlienstext.get_width() - killedAliens.get_width() - killedMeteorstext.get_width() - killedMeteors.get_width() - 15,
+        0))
 
         pygame.display.flip()
 
@@ -978,6 +1059,11 @@ Player = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 enemybullets = pygame.sprite.Group()
 enemy = pygame.sprite.Group()
+aliens = pygame.sprite.Group()
+meteors = pygame.sprite.Group()
+KILLEDALIENS = 0
+KILLEDMETEORS = 0
+
 
 
 
