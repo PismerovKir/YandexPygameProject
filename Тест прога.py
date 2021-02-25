@@ -297,7 +297,6 @@ class Alien(pygame.sprite.Sprite):
         if self.rect.left < 700:
             self.rect.x = 700
             self.speedx = - self.speedx / 2
-            print(- self.speedx / 2)
 
         if self.rect.left > 1205:
             self.rect.x = 1200
