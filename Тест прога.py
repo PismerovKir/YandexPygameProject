@@ -215,8 +215,10 @@ class LaserBulletAlien(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.speed = 10
-        self.damage = 3
+        self.speed =  9 + SCORE // 1500
+        if self.speed > 30:
+            self.speed = 30
+        self.damage = 1 + SCORE // 2000
 
 
     def update(self):
@@ -247,10 +249,14 @@ class Alien(pygame.sprite.Sprite):
         self.bangimage5 = load_image('alienbang1.png')
         self.rect.x = WIDTH - 1
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
-        self.speedy = 1
-        self.speedx = 1
-        self.health = 3
-        self.damage = 3
+        self.speedy = 1 + SCORE // 9000
+        if SCORE > 18000:
+            self.speedy = 2
+        self.speedx = 1 + SCORE // 6000
+        if SCORE > 12000:
+            self.speedx = 2
+
+        self.health = 5 + SCORE // 3000
         self.mask = pygame.mask.from_surface(self.image)
         self.deathCounter = -1
         self.prev_shot = 0
@@ -273,7 +279,7 @@ class Alien(pygame.sprite.Sprite):
         if self.deathCounter == 0:
             KILLEDALIENS += 1
             #TODO Увеличивать деньги за убийство со временем
-            MONEYGET += 2
+            MONEYGET += 2 + SCORE // 25
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
@@ -283,7 +289,7 @@ class Alien(pygame.sprite.Sprite):
             self.deathCounter = 40
 
         # БАЗОВЫЙ ИИ TODO Увеличивать скорострельность
-        if self.rect.centery in range(spaceship.rect.centery - 30, spaceship.rect.centery + 30) and SCORE - self.prev_shot > 70:
+        if self.rect.centery in range(spaceship.rect.centery - 30, spaceship.rect.centery + 30) and SCORE - self.prev_shot > 75:
             self.prev_shot = SCORE
             enemybullet = LaserBulletAlien(self.rect.left, self.rect.centery)
             all_sprites.add(enemybullet)
@@ -1077,14 +1083,16 @@ def Game():
 
 
         #TODO Ускорить спаун со временем
-        if SCORE - prev_alien > 300 and len(aliens) < 2:
-            prev_alien = SCORE
-            alien = Alien()
-            enemy.add(alien)
-            all_sprites.add(alien)
-            aliens.add(alien)
-
-
+        if SCORE > 1500:
+            if len(aliens) < 2:
+                if SCORE - prev_alien > 300:
+                    prev_alien = SCORE
+                    alien = Alien()
+                    enemy.add(alien)
+                    all_sprites.add(alien)
+                    aliens.add(alien)
+            else:
+                prev_alien = SCORE
 
 
         if background_rect.right == 0:
@@ -1094,8 +1102,8 @@ def Game():
             background_rect2.x = WIDTH
 
         #TODO ускорение заднего фона тоже сделать
-        background_rect.x -= 4
-        background_rect2.x -= 4
+        background_rect.x -= 4 + SCORE // 6000
+        background_rect2.x -= 4 + SCORE // 6000
 
         enemy.update()
 
