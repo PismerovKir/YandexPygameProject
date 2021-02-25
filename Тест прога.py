@@ -117,7 +117,7 @@ class SpaceShip(pygame.sprite.Sprite):
         self.rect.x = 0
         self.rect.centery = HEIGHT / 2
 
-        self.speed = 1 + LEVEL_SPD
+        self.speed = 2 + LEVEL_SPD
         self.health = 5 + LEVEL_DUR
         self.prev_shot = 0
         self.mask = pygame.mask.from_surface(self.image)
@@ -433,9 +433,12 @@ class Meteor(pygame.sprite.Sprite):
 
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
         self.speedy = random.randrange(-1, 2)
-        self.speedx = 3
-        self.health = 3
-        self.damage = 3
+        self.speedx = 2 + SCORE // 2500
+        if self.speedx > 8:
+            self.speedx = 8
+        self.health = 3 + SCORE // 1500
+
+        self.damage = 2 + SCORE // 1500
         self.mask = pygame.mask.from_surface(self.image)
         self.deathCounter = -1
 
@@ -456,7 +459,7 @@ class Meteor(pygame.sprite.Sprite):
 
         if self.deathCounter == 0:
             KILLEDMETEORS += 1
-            MONEYGET += 1
+            MONEYGET += 1 + SCORE // 3000
             self.kill()
 
         if self.health < 1 and self.deathCounter < 0:
@@ -849,9 +852,9 @@ def UpgradeGame():
 
 
 
-        costDur = font.render(f"Цена: {5 + LEVEL_DUR * 5}", True, textcolor)
-        costSpd = font.render(f"Цена: {5 + LEVEL_SPD * 5}", True, textcolor)
-        costDmg = font.render(f"Цена: {5 + LEVEL_DMG * 5}", True, textcolor)
+        costDur = font.render(f"Цена: {2 + LEVEL_DUR * 2}", True, textcolor)
+        costSpd = font.render(f"Цена: {5 + LEVEL_SPD * 7}", True, textcolor)
+        costDmg = font.render(f"Цена: {3 + LEVEL_DMG * 5}", True, textcolor)
 
         screen.blit(costDur, (200 - costDur.get_size()[0] // 2, 350))
         screen.blit(costSpd, (600 - costDmg.get_size()[0] // 2, 350))
@@ -886,8 +889,8 @@ def UpgradeGame():
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if UpgradeDURButton.rect.collidepoint(event.pos):
-                    if MONEY >= LEVEL_DUR * 5 + 5:
-                        MONEY -= LEVEL_DUR * 5 + 5
+                    if MONEY >= LEVEL_DUR * 2 + 2:
+                        MONEY -= LEVEL_DUR * 2 + 2
                         LEVEL_DUR += 1
                         if SOUND:
                             buyUpgrade.play()
@@ -897,8 +900,8 @@ def UpgradeGame():
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if UpgradeDMGButton.rect.collidepoint(event.pos):
-                    if MONEY >= LEVEL_DMG * 5 + 5:
-                        MONEY -= LEVEL_DMG * 5 + 5
+                    if MONEY >= LEVEL_DMG * 5 + 3:
+                        MONEY -= LEVEL_DMG * 5 + 3
                         LEVEL_DMG += 1
                         if SOUND:
                             buyUpgrade.play()
@@ -908,8 +911,8 @@ def UpgradeGame():
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if UpgradeSPDButton.rect.collidepoint(event.pos):
-                    if MONEY >= LEVEL_SPD * 5 + 5:
-                        MONEY -= LEVEL_SPD * 5 + 5
+                    if MONEY >= LEVEL_SPD * 7 + 5:
+                        MONEY -= LEVEL_SPD * 7 + 5
                         LEVEL_SPD += 1
                         if SOUND:
                             buyUpgrade.play()
@@ -1052,15 +1055,25 @@ def Game():
                         return True
 
 
-        if SCORE % 100 == 0:
-            meteor = Meteor()
-            enemy.add(meteor)
-            meteors.add(meteor)
-            all_sprites.add(meteor)
+        if SCORE < 60000:
+            if SCORE % (150 - (SCORE // 500)) == 0:
+                meteor = Meteor()
+                enemy.add(meteor)
+                meteors.add(meteor)
+                all_sprites.add(meteor)
+
+
+        else:
+            if SCORE % 30 == 0:
+                meteor = Meteor()
+                enemy.add(meteor)
+                meteors.add(meteor)
+                all_sprites.add(meteor)
+
 
 
         #TODO Ускорить спаун со временем
-        if SCORE - prev_alien > 300 and len(aliens) < 3:
+        if SCORE - prev_alien > 300 and len(aliens) < 2:
             prev_alien = SCORE
             alien = Alien()
             enemy.add(alien)
@@ -1101,7 +1114,6 @@ def Game():
         screen.blit(health, (0, 0))
         screen.blit(cur_health, (30, 0))
 
-        #TODO Белый цвет счетчика не очень, надо поменять
         killedAlienstext = font.render(f": {KILLEDALIENS}", True, (255, 255, 255))
         screen.blit(killedAlienstext, (1200 - killedAlienstext.get_width(), 0))
         screen.blit(killedAliens, (1200 - killedAlienstext.get_width() - killedAliens.get_width() - 5, 0))
