@@ -169,6 +169,9 @@ class SpaceShip(pygame.sprite.Sprite):
         if self.rect.top < 30:
             self.rect.top = 30
 
+        if self.rect.right > 700:
+            self.rect.right = 700
+
         if self.rect.bottom > HEIGHT:
             self.rect.bottom = HEIGHT
 
@@ -199,8 +202,7 @@ class LaserBulletLong(pygame.sprite.Sprite):
                 touched.health -= self.damage
                 self.kill()
                 if SOUND:
-                    if type(touched) == Meteor:
-                        meteorhit.play()
+                    meteorhit.play()
 
 
 
@@ -243,7 +245,7 @@ class Alien(pygame.sprite.Sprite):
         self.bangimage3 = load_image('alienbang3.png')
         self.bangimage4 = load_image('alienbang2.png')
         self.bangimage5 = load_image('alienbang1.png')
-        self.rect.x = WIDTH
+        self.rect.x = WIDTH - 1
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
         self.speedy = 1
         self.speedx = 1
@@ -252,12 +254,11 @@ class Alien(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.deathCounter = -1
         self.prev_shot = 0
+        self.bumpcounter = 0
 
     def update(self):
         global KILLEDALIENS, MONEYGET
 
-        if self.rect.right < 0:
-            self.kill()
         self.deathCounter -= 1
         if self.deathCounter == 32:
             self.image = self.bangimage2
@@ -281,7 +282,7 @@ class Alien(pygame.sprite.Sprite):
             self.image = self.bangimage1
             self.deathCounter = 40
 
-        # БАЗОВЫЙ ИИ TODO
+        # БАЗОВЫЙ ИИ TODO Увеличивать скорострельность
         if self.rect.centery in range(spaceship.rect.centery - 30, spaceship.rect.centery + 30) and SCORE - self.prev_shot > 70:
             self.prev_shot = SCORE
             enemybullet = LaserBulletAlien(self.rect.left, self.rect.centery)
@@ -290,43 +291,116 @@ class Alien(pygame.sprite.Sprite):
             if SOUND:
                 alienpew.play()
 
-        if self.rect.left - spaceship.rect.right > 150:
-            self.rect.x -= self.speedx
-        else:
-            self.rect.x = spaceship.rect.right + 150
+        if self.rect.bottom < 0 or self.rect.top > HEIGHT:
+            self.speedy = - self.speedy
 
-        #Спидран по ии поехали
-        # +- 20 в range(...) это зазор между пулей и пришельцем
-        if bullets:
-            moved = False
-            for bullet in bullets:
-                if bullet.rect.left < self.rect.right:
-                    if bullet.rect.centery in range(self.rect.top - 20, self.rect.top + self.rect.height // 2 + 20):
-                        self.rect.y += self.speedy
-                    elif bullet.rect.centery in range(self.rect.top - 20 + self.rect.height // 2,
-                                                      self.rect.bottom + 20):
-                        self.rect.y -= self.speedy
-                    else:
-                        if not moved:
-                            moved = True
-                            if self.rect.centery < spaceship.rect.centery:
+        if self.rect.left < 700:
+            self.rect.x = 700
+            self.speedx = - self.speedx / 2
+            print(- self.speedx / 2)
+
+        if self.rect.left > 1205:
+            self.rect.x = 1200
+            self.speedx = - self.speedx * 2
+
+        self.rect.x += self.speedx
+
+        self.bumpcounter -= 1
+
+        if self.bumpcounter == 0:
+            self.speedy = - self.speedy
+
+        elif self.bumpcounter < 0:
+            if len(aliens) > 1:
+                movedmoved = False
+                for enemy1 in enemy:
+                    if self != enemy1:
+                        if not movedmoved:
+                            movedmoved = True
+                            if pygame.sprite.collide_mask(self, enemy1):
+                                self.bumpcounter = 50
+                                self.speedy = - self.speedy
+                                if type(enemy1) == Alien:
+                                    enemy1.bumpcounter = 50
+                                    enemy1.speedy = - enemy1.speedy
+                            else:
+                                # Спидран по ии поехали
+                                # +- 20 в range(...) это зазор между пулей и пришельцем
+                                if bullets:
+                                    moved = False
+                                    for bullet in bullets:
+                                        if bullet.rect.left < self.rect.right:
+                                            if bullet.rect.centery in range(self.rect.top - 20,
+                                                                            self.rect.top + self.rect.height // 2 + 20):
+                                                self.rect.y += self.speedy
+                                            elif bullet.rect.centery in range(
+                                                    self.rect.top - 20 + self.rect.height // 2,
+                                                    self.rect.bottom + 20):
+                                                self.rect.y -= self.speedy
+                                            else:
+                                                if not moved:
+                                                    moved = True
+                                                    if self.rect.centery < spaceship.rect.centery:
+                                                        self.rect.y += self.speedy
+                                                    if self.rect.centery > spaceship.rect.centery:
+                                                        self.rect.y -= self.speedy
+
+                                        else:
+                                            if not moved:
+                                                moved = True
+                                                if self.rect.centery < spaceship.rect.centery:
+                                                    self.rect.y += self.speedy
+                                                if self.rect.centery > spaceship.rect.centery:
+                                                    self.rect.y -= self.speedy
+
+                                else:
+                                    if self.rect.centery < spaceship.rect.centery:
+                                        self.rect.y += self.speedy
+                                    if self.rect.centery > spaceship.rect.centery:
+                                        self.rect.y -= self.speedy
+
+
+            else:
+                # Спидран по ии поехали
+                # +- 20 в range(...) это зазор между пулей и пришельцем
+                if bullets:
+                    moved = False
+                    for bullet in bullets:
+                        if bullet.rect.left < self.rect.right:
+                            if bullet.rect.centery in range(self.rect.top - 20,
+                                                            self.rect.top + self.rect.height // 2 + 20):
                                 self.rect.y += self.speedy
-                            if self.rect.centery > spaceship.rect.centery:
+                            elif bullet.rect.centery in range(self.rect.top - 20 + self.rect.height // 2,
+                                                              self.rect.bottom + 20):
                                 self.rect.y -= self.speedy
+                            else:
+                                if not moved:
+                                    moved = True
+                                    if self.rect.centery < spaceship.rect.centery:
+                                        self.rect.y += self.speedy
+                                    if self.rect.centery > spaceship.rect.centery:
+                                        self.rect.y -= self.speedy
+
+                        else:
+                            if not moved:
+                                moved = True
+                                if self.rect.centery < spaceship.rect.centery:
+                                    self.rect.y += self.speedy
+                                if self.rect.centery > spaceship.rect.centery:
+                                    self.rect.y -= self.speedy
 
                 else:
-                    if not moved:
-                        moved = True
-                        if self.rect.centery < spaceship.rect.centery:
-                            self.rect.y += self.speedy
-                        if self.rect.centery > spaceship.rect.centery:
-                            self.rect.y -= self.speedy
+                    if self.rect.centery < spaceship.rect.centery:
+                        self.rect.y += self.speedy
+                    if self.rect.centery > spaceship.rect.centery:
+                        self.rect.y -= self.speedy
 
-        else:
-            if self.rect.centery < spaceship.rect.centery:
-                self.rect.y += self.speedy
-            if self.rect.centery > spaceship.rect.centery:
-                self.rect.y -= self.speedy
+
+
+
+
+
+
 
 
 
