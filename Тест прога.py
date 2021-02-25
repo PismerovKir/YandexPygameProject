@@ -424,15 +424,19 @@ class Meteor(pygame.sprite.Sprite):
             self.rect.y = random.randrange(400, 800)
             self.speedy = random.randint(-1, 0)
 
-        # if self.speedy:
-        #     if self.speedy < 0:
-        #         self.speedy -= SCORE // 2000  #TODO Снять коммент это ускорение метеора на 1 каждые 20 сек
-        #     else:
-        #         self.speedy += SCORE // 2000
+        if self.speedy:
+            if self.speedy < 0:
+                self.speedy -= SCORE // 2500
+            else:
+                self.speedy += SCORE // 2500
+
+        if self.speedy > 5:
+            self.speedy = 5
+        if self.speedy < -5:
+            self.speedy = -5
 
 
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
-        self.speedy = random.randrange(-1, 2)
         self.speedx = 2 + SCORE // 2500
         if self.speedx > 8:
             self.speedx = 8
