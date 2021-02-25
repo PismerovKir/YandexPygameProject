@@ -533,7 +533,7 @@ def EndGame():
     current = font.render(f"Счет: {SCORE}", True, (255, 216, 0))
 
     if SCORE > PREV_BEST:
-        # PREV_BEST = SCORE TODO СНЯТЬ этот коммент
+        PREV_BEST = SCORE
         newBest = font.render(f"Новый рекорд: {SCORE}!", True, (255, 216, 0))
         current = font.render(f"", True, (255, 216, 0))
 
