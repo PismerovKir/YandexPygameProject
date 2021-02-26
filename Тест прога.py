@@ -1133,3 +1133,4 @@ else:
     while pygame.event.wait().type != pygame.QUIT:
         pass
     pygame.quit()
+    # Коммит чиним Вадима
