@@ -925,6 +925,7 @@ if OK:
                     meteors.add(meteor)
                     all_sprites.add(meteor)
 
+            # Появление пришельцев
             if SCORE > 1500:
                 if len(aliens) < 2:
                     if SCORE - prev_alien > 300:
@@ -936,6 +937,7 @@ if OK:
                 else:
                     prev_alien = SCORE
 
+            # отрисовка заднего фона
             if background_rect.right < 0:
                 background_rect.x = background_rect2.right
 
@@ -945,8 +947,9 @@ if OK:
             background_rect.x -= 4 + SCORE // 6000
             background_rect2.x -= 4 + SCORE // 6000
 
-            enemy.update()
 
+
+            # Обновление и отрисовка спрайтов, счетчиков и жизней
             all_sprites.update()
 
             screen.fill(BLACK)
@@ -981,10 +984,11 @@ if OK:
 
             pygame.display.flip()
 
-
+    # Пауза
     def PauseGame():
         global MUSIC, SOUND
 
+        # Остановка звуков
         alienpew.stop()
         pew.stop()
         PlayerHit.stop()
@@ -992,6 +996,7 @@ if OK:
         meteorbang.stop()
         meteorhit.stop()
 
+        # Кнопки, задний фон
         backgr = screen.copy()
         runningPause = True
         ContinueButton = Button('Continue', 480, 300)
@@ -1010,6 +1015,7 @@ if OK:
             screen.fill(BLACK)
             screen.blit(backgr, (0, 0))
 
+            # Музыка звуки
             if MUSIC:
                 musicButton.kill()
                 musicButton = Button('MusicOff', 45, HEIGHT - 40)
@@ -1034,8 +1040,10 @@ if OK:
             butts.draw(screen)
 
             ShowCursor()
+            # Курсор
             pygame.display.flip()
 
+            # Ожидание кнопок
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     runningPause = False
@@ -1068,14 +1076,19 @@ if OK:
                             SOUND = True
 
 
+    # Конец игры
     def EndGame():
 
+
+        # Текст
         global SCORE, PREV_BEST, MONEY, MONEYGET
         font = pygame.font.Font(None, 50)
         newBest = font.render(f"", True, (255, 216, 0))
         money = font.render(f"Монет получено: {MONEYGET}", True, (255, 216, 0))
         current = font.render(f"Счет: {SCORE}", True, (255, 216, 0))
 
+
+        # Тексты меняются если побит рекорд
         if SCORE > PREV_BEST:
             PREV_BEST = SCORE
             newBest = font.render(f"Новый рекорд: {SCORE}!", True, (255, 216, 0))
@@ -1088,6 +1101,7 @@ if OK:
         runningEndGame = True
 
         butts = pygame.sprite.Group()
+        # Кнопки
 
         MenuButton = Button('Menu', 480, 500)
         MenuButton.rect.x = 600 - MenuButton.rect.width // 2
@@ -1102,6 +1116,7 @@ if OK:
 
             screen.blit(EndBackground, (0, 0))
 
+            # Отрисовка текстов по середине
             screen.blit(newBest, (600 - newBest.get_width() // 2, 300))
             screen.blit(current, (600 - current.get_width() // 2, 300))
             screen.blit(money, (600 - money.get_width() // 2, 350))
@@ -1109,8 +1124,10 @@ if OK:
             butts.draw(screen)
 
             ShowCursor()
+            # Курсор в конце
             pygame.display.flip()
 
+            # Ожидание нажатия кнопок
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return True
@@ -1140,7 +1157,7 @@ if OK:
         MONEY = int(data[1])
         LEVEL_DUR, LEVEL_DMG, LEVEL_SPD = int(data[2]), int(data[3]), int(data[4])
         file.close()
-    except FileNotFoundError:
+    except FileNotFoundError: # Файла может не оказаться, тогда рекорд -1
         file = open('data/gamedata.txt', 'w')
         file.write('''-1
     0
@@ -1148,7 +1165,7 @@ if OK:
     0
     0''')
         file.close()
-    except Exception:
+    except Exception: # Или может нехватить строк, в них будут записаны не числа и т.д. -> рекорд -2
         file = open('data/gamedata.txt', 'w')
         file.write('''-2
         0
@@ -1164,6 +1181,7 @@ if OK:
     LEVEL_DUR, LEVEL_DMG, LEVEL_SPD = int(data[2]), int(data[3]), int(data[4])
     file.close()
 
+    # Создание кораблика и групп спрайтов (должны быть глобальными  чтобы вызываться из классов)
     spaceship = SpaceShip()
     all_sprites = pygame.sprite.Group()
     Player = pygame.sprite.Group()
@@ -1176,6 +1194,8 @@ if OK:
     KILLEDMETEORS = 0
     MONEYGET = 0
 
+
+    # В конце игры запись результатов
     if StartGame():
         file = open('data/gamedata.txt', 'w')
         file.write(f'''{PREV_BEST}
