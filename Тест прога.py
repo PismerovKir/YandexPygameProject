@@ -40,6 +40,7 @@ LEVEL_DMG = 0
 LEVEL_SPD = 0
 PREV_BEST = 0
 MONEY = 0
+NEXT_AREA = 0
 MUSIC = True
 SOUND = True
 
@@ -249,12 +250,16 @@ class Alien(pygame.sprite.Sprite):
         self.speedx = 1
         self.health = 3
         self.damage = 3
+        if len(aliens) + KILLEDALIENS < 3:
+            self.area = (KILLEDALIENS + len(aliens)) % 3
+        else:
+            self.area = NEXT_AREA
         self.mask = pygame.mask.from_surface(self.image)
         self.deathCounter = -1
         self.prev_shot = 0
 
     def update(self):
-        global KILLEDALIENS, MONEYGET
+        global KILLEDALIENS, MONEYGET, NEXT_AREA
 
         if self.rect.right < 0:
             self.kill()
@@ -270,6 +275,7 @@ class Alien(pygame.sprite.Sprite):
 
 
         if self.deathCounter == 0:
+            NEXT_AREA = self.area
             KILLEDALIENS += 1
             #TODO Увеличивать деньги за убийство со временем
             MONEYGET += 2
@@ -327,6 +333,12 @@ class Alien(pygame.sprite.Sprite):
                 self.rect.y += self.speedy
             if self.rect.centery > spaceship.rect.centery:
                 self.rect.y -= self.speedy
+
+        if self.rect.y > (HEIGHT * (self.area + 1)) // 3:
+            self.rect.y = (HEIGHT * (self.area + 1)) // 3
+
+        elif self.rect.y < (HEIGHT * self.area + 1) // 3:
+            self.rect.y = (HEIGHT * self.area + 1) // 3
 
 
 
