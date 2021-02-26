@@ -5,7 +5,7 @@ import random
 pygame.init()
 
 files = ['alien.png', 'alienbang.wav', 'alienbang1.png', 'alienbang2.png', 'alienbang3.png', 'alienbang4.png',
-         'alienbang5.png', 'alienpew.wav', 'bip.wav', 'body.png', 'ButtoContinue.png', 'ButtonContinue.png',
+         'alienbang5.png', 'alienpew.wav', 'body.png', 'ButtoContinue.png', 'ButtonContinue.png',
          'ButtonExit.png', 'ButtonGoBack.png', 'ButtonMenu.png', 'ButtonMusicOff.png', 'ButtonMusicOn.png',
          'ButtonPlay.png', 'ButtonPlus.png', 'ButtonReplay.png', 'ButtonSoundOff.png', 'ButtonSoundOn.png',
          'ButtonUpgrade.png', 'buyUpgrade.wav', 'Coin.png', 'count.wav', 'Cursor.png', 'ExitButton.png',
@@ -1016,11 +1016,11 @@ if OK:
                 else:
                     prev_alien = SCORE
 
-            if background_rect.right == 0:
-                background_rect.x = WIDTH
+            if background_rect.right < 0:
+                background_rect.x = background_rect2.right
 
-            if background_rect2.right == 0:
-                background_rect2.x = WIDTH
+            if background_rect2.right < 0:
+                background_rect2.x = background_rect.right
 
             background_rect.x -= 4 + SCORE // 6000
             background_rect2.x -= 4 + SCORE // 6000
