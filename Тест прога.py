@@ -214,7 +214,7 @@ class LaserBulletAlien(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.speed = 10
-        self.damage = 2 + SCORE // 1000
+        self.damage = 3
 
 
     def update(self):
@@ -247,8 +247,8 @@ class Alien(pygame.sprite.Sprite):
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
         self.speedy = 1
         self.speedx = 1
-        self.health = 3 + SCORE // 1000
-        self.damage = 3 + SCORE // 1000
+        self.health = 3
+        self.damage = 3
         self.mask = pygame.mask.from_surface(self.image)
         self.deathCounter = -1
         self.prev_shot = 0
@@ -292,8 +292,8 @@ class Alien(pygame.sprite.Sprite):
 
         if self.rect.left - spaceship.rect.right > 150:
             self.rect.x -= self.speedx
-        #else:
-            #self.rect.x = spaceship.rect.right + 150
+        else:
+            self.rect.x = spaceship.rect.right + 150
 
         #Спидран по ии поехали
         # +- 20 в range(...) это зазор между пулей и пришельцем
@@ -328,13 +328,6 @@ class Alien(pygame.sprite.Sprite):
             if self.rect.centery > spaceship.rect.centery:
                 self.rect.y -= self.speedy
 
-        if pygame.sprite.collide_mask(self, spaceship) and self.deathCounter < 0:
-            spaceship.health -= self.damage
-            self.damage = 0
-            if SOUND:
-                alienbang.play()
-            self.image = self.bangimage1
-            self.deathCounter = 40
 
 
 class Meteor(pygame.sprite.Sprite):
@@ -368,8 +361,8 @@ class Meteor(pygame.sprite.Sprite):
         self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
         self.speedy = random.randrange(-1, 2)
         self.speedx = 3
-        self.health = 3 + SCORE // 1000
-        self.damage = 3 + SCORE // 1000
+        self.health = 3
+        self.damage = 3
         self.mask = pygame.mask.from_surface(self.image)
         self.deathCounter = -1
 
