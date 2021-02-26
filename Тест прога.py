@@ -1,9 +1,10 @@
+# Загрузка нужных библиотек
 import pygame
 import os
 import random
 
 pygame.init()
-
+# Список файлов, нужных для запуска программы
 files = ['alien.png', 'alienbang.wav', 'alienbang1.png', 'alienbang2.png', 'alienbang3.png', 'alienbang4.png',
          'alienbang5.png', 'alienpew.wav', 'body.png', 'ButtoContinue.png', 'ButtonContinue.png',
          'ButtonExit.png', 'ButtonGoBack.png', 'ButtonMenu.png', 'ButtonMusicOff.png', 'ButtonMusicOn.png',
@@ -20,6 +21,7 @@ files = ['alien.png', 'alienbang.wav', 'alienbang1.png', 'alienbang2.png', 'alie
 
 notfound = []
 OK = True
+#Попытка открыть все файлы, в случае неудчи игра не запуститься
 for elem in files:
     try:
         file = open(f'data/{elem}', 'r')
@@ -28,6 +30,7 @@ for elem in files:
         notfound.append(elem)
 
 if OK:
+    #Глобальные переменные
     WIDTH = 1200
     HEIGHT = 800
     FPS = 100
@@ -42,6 +45,7 @@ if OK:
     MUSIC = True
     SOUND = True
 
+    # Вспомогательные действия с окном, загрузка звуков и музыки
     pygame.mouse.set_visible(False)
 
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -72,7 +76,7 @@ if OK:
 
     meteorbangplayer = pygame.mixer.Sound('data/meteorbangplayer.wav')
 
-
+    # Функция для загрузки картинки
     def load_image(name, color_key=None):
         fullname = os.path.join('data', name)
         image = pygame.image.load(fullname)
@@ -89,12 +93,14 @@ if OK:
     pygame.display.set_icon(load_image('minKorabl.png'))
 
 
+    # Класс космического корабля
     class SpaceShip(pygame.sprite.Sprite):
         def __init__(self):
             pygame.sprite.Sprite.__init__(self)
 
             global LEVEL_DMG, LEVEL_SPD, LEVEL_SPEED
 
+            # Загрузка всех его картинок для анимации
             self.imageRight1 = load_image('korablRight1.png')
             self.imageLeft1 = load_image('korablLeft1.png')
             self.image1 = load_image('korabl1.png')
@@ -106,6 +112,7 @@ if OK:
             self.imageRight = self.imageRight1
             self.imageLeft = self.imageLeft1
 
+            # Счетчик для анимации
             self.counter = 0
 
             self.image.set_colorkey(BLACK)
@@ -113,13 +120,16 @@ if OK:
             self.rect.x = 0
             self.rect.centery = HEIGHT / 2
 
+            # Характеристики корабля
             self.speed = 2 + LEVEL_SPD
             self.health = 5 + LEVEL_DUR
+            # Счетчик для стрельбы корабля
             self.prev_shot = 0
             self.mask = pygame.mask.from_surface(self.image)
 
-        def update(self):
 
+        def update(self):
+            # Смена картинки корабля (10 раз в секунду)
             if SCORE % 10 == 0:
                 if self.counter % 2 == 0:
                     self.image = self.image2
@@ -131,8 +141,8 @@ if OK:
                     self.imageRight = self.imageRight1
                 self.counter += 1
 
+            # Движение корабля
             k = pygame.key.get_pressed()
-
             if k[pygame.K_LEFT]:
                 self.image = self.imageLeft
                 self.rect.x -= self.speed
@@ -145,6 +155,7 @@ if OK:
             if k[pygame.K_DOWN]:
                 self.rect.y += self.speed
 
+            # Стрельба корабля
             if k[pygame.K_SPACE]:
                 if SCORE - self.prev_shot > 60:
                     self.prev_shot = SCORE
@@ -154,6 +165,7 @@ if OK:
                     if SOUND:
                         pew.play(0)
 
+            # Корабль может летать не везде
             if self.rect.right > WIDTH:
                 self.rect.right = WIDTH
             if self.rect.left < 0:
@@ -169,6 +181,7 @@ if OK:
                 self.rect.bottom = HEIGHT
 
 
+    # Выстрелы игрока
     class LaserBulletLong(pygame.sprite.Sprite):
         def __init__(self, x, y):
             pygame.sprite.Sprite.__init__(self)
@@ -188,6 +201,7 @@ if OK:
                 self.kill()
             self.rect.x += 10
 
+            # Поадание по врагу
             if pygame.sprite.spritecollideany(self, enemy):
                 touched = pygame.sprite.spritecollideany(self, enemy)
                 if pygame.sprite.collide_mask(self, touched):
@@ -197,6 +211,7 @@ if OK:
                         meteorhit.play()
 
 
+    # Выстрелы врага
     class LaserBulletAlien(pygame.sprite.Sprite):
         def __init__(self, x, y):
             pygame.sprite.Sprite.__init__(self)
@@ -206,6 +221,7 @@ if OK:
             self.rect = self.image.get_rect()
             self.rect.x = x
             self.rect.y = y
+            # Ускорение и увеличение урона со временем
             self.speed = 9 + SCORE // 1500
             if self.speed > 30:
                 self.speed = 30
@@ -215,6 +231,7 @@ if OK:
             if self.rect.right < 0:
                 self.kill()
 
+            # Попадание по игроку
             if pygame.sprite.spritecollideany(self, Player):
                 touched = pygame.sprite.spritecollideany(self, Player)
                 if pygame.sprite.collide_mask(self, touched):
@@ -227,9 +244,11 @@ if OK:
             self.rect.x -= self.speed
 
 
+    # Класс пришельца
     class Alien(pygame.sprite.Sprite):
         def __init__(self):
             pygame.sprite.Sprite.__init__(self)
+            # Загрузка картинки пришельца и его взрыва
             self.image = load_image('alien.png')
             self.rect = self.image.get_rect()
             self.bangimage1 = load_image('alienbang5.png')
@@ -239,6 +258,8 @@ if OK:
             self.bangimage5 = load_image('alienbang1.png')
             self.rect.x = WIDTH - 1
             self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
+
+            # Ускорение пригельца со временем
             self.speedy = 1 + SCORE // 9000
             if SCORE > 18000:
                 self.speedy = 2
@@ -248,13 +269,16 @@ if OK:
 
             self.health = 5 + SCORE // 3000
             self.mask = pygame.mask.from_surface(self.image)
+            # Счетчики для смерти и стрельбы
             self.deathCounter = -1
             self.prev_shot = 0
             self.bumpcounter = 0
+            self.monets = 2 + SCORE // 2500
 
         def update(self):
             global KILLEDALIENS, MONEYGET
 
+            # Загрузка картинок взрыва
             self.deathCounter -= 1
             if self.deathCounter == 32:
                 self.image = self.bangimage2
@@ -265,17 +289,20 @@ if OK:
             if self.deathCounter == 8:
                 self.image = self.bangimage5
 
+            # Смерть Исчезнновение пришельца
             if self.deathCounter == 0:
                 KILLEDALIENS += 1
-                MONEYGET += 2 + SCORE // 2500
+                MONEYGET += self.monets
                 self.kill()
 
+            # Начало анимации смерти
             if self.health < 1 and self.deathCounter < 0:
                 if SOUND:
                     alienbang.play()
                 self.image = self.bangimage1
                 self.deathCounter = 40
 
+            # Пришелец стреляет
             if self.rect.centery in range(spaceship.rect.centery - 30,
                                           spaceship.rect.centery + 30) and SCORE - self.prev_shot > 75:
                 self.prev_shot = SCORE
@@ -285,6 +312,7 @@ if OK:
                 if SOUND:
                     alienpew.play()
 
+            # Пришельцы летают влево вправо вверх вниз
             if self.rect.bottom < 0 or self.rect.top > HEIGHT:
                 self.speedy = - self.speedy
 
@@ -302,7 +330,8 @@ if OK:
 
             if self.bumpcounter == 0:
                 self.speedy = - self.speedy
-
+            # Есть небольшая хаотичность движений
+            # Пришелец уворачивается от выстрелов игрока, попутно приближаясь к нему
             elif self.bumpcounter < 0:
                 if len(aliens) > 1:
                     movedmoved = False
@@ -391,15 +420,16 @@ if OK:
     class Meteor(pygame.sprite.Sprite):
         def __init__(self):
             pygame.sprite.Sprite.__init__(self)
+            # Картинки метеора и его взрыв
             self.image = load_image(f'meteor{random.randint(1, 3)}.png')
             self.bangimage1 = load_image('meteorBang5.png')
             self.bangimage2 = load_image('meteorBang4.png')
             self.bangimage3 = load_image('meteorBang3.png')
             self.bangimage4 = load_image('meteorBang2.png')
             self.bangimage5 = load_image('meteorBang1.png')
-
             self.rect = self.image.get_rect()
             self.rect.x = WIDTH
+            # Случайное появление метеоров (Сверхк или снизу)
             if random.randint(1, 2) == 1:
                 self.rect.y = random.randrange(0, 400)
                 self.speedy = random.randint(0, 1)
@@ -407,30 +437,37 @@ if OK:
                 self.rect.y = random.randrange(400, 800)
                 self.speedy = random.randint(-1, 0)
 
+            # Ускорение со временем
             if self.speedy:
                 if self.speedy < 0:
                     self.speedy -= SCORE // 2500
                 else:
                     self.speedy += SCORE // 2500
 
+            # Ограничение на вертикальную скорость
             if self.speedy > 5:
                 self.speedy = 5
             if self.speedy < -5:
                 self.speedy = -5
 
+            # Ускорение со временем
             self.rect.y = random.randrange(50, HEIGHT - self.rect.height - 50)
             self.speedx = 2 + SCORE // 2500
+            # Ограничение на горизонтальную скорость
             if self.speedx > 8:
                 self.speedx = 8
-            self.health = 3 + SCORE // 1500
 
+            # Усиление со временем
+            self.health = 3 + SCORE // 1500
             self.damage = 2 + SCORE // 1500
             self.mask = pygame.mask.from_surface(self.image)
+            # Счетчик анимации взрыва
             self.deathCounter = -1
 
         def update(self):
             global KILLEDMETEORS, MONEYGET
             self.deathCounter -= 1
+            # Анимация взрыва
             if self.deathCounter == 32:
                 self.image = self.bangimage2
             if self.deathCounter == 24:
@@ -440,6 +477,7 @@ if OK:
             if self.deathCounter == 8:
                 self.image = self.bangimage5
 
+            # Движение
             self.rect.x -= self.speedx
             self.rect.y += self.speedy
 
@@ -447,13 +485,14 @@ if OK:
                 KILLEDMETEORS += 1
                 MONEYGET += 1 + SCORE // 3000
                 self.kill()
-
+            # Начало анимации взрыва
             if self.health < 1 and self.deathCounter < 0:
                 if SOUND:
                     meteorbang.play()
                 self.image = self.bangimage1
                 self.deathCounter = 40
 
+            # Столкновение с игроком
             if pygame.sprite.collide_mask(self, spaceship) and self.deathCounter < 0:
                 spaceship.health -= self.damage
                 self.damage = 0
@@ -462,173 +501,30 @@ if OK:
                 self.image = self.bangimage1
                 self.deathCounter = 40
 
+            # Вылет за экран = смерть
             if self.rect.right < 0:
                 self.kill()
 
-
+    # Класс кнопки
     class Button(pygame.sprite.Sprite):
         def __init__(self, name, x, y):
             pygame.sprite.Sprite.__init__(self)
+            # Все кнопки для удобства имеют схожие названия
             self.image = load_image(f'Button{name}.png')
             self.rect = self.image.get_rect()
             self.rect.x = x
             self.rect.y = y
 
-
+    # Картинка курсора загружается 1 раз
     cursor = load_image('cursor.png')
-
-
+    # Отображение курсора на месте мышки
     def ShowCursor():
         x, y = pygame.mouse.get_pos()
         if pygame.mouse.get_focused():
             screen.blit(cursor, (x, y))
 
 
-    def PauseGame():
-        global MUSIC, SOUND
-
-        alienpew.stop()
-        pew.stop()
-        PlayerHit.stop()
-        alienbang.stop()
-        meteorbang.stop()
-        meteorhit.stop()
-
-        backgr = screen.copy()
-        runningPause = True
-        ContinueButton = Button('Continue', 480, 300)
-        MenuButton = Button('Menu', 480, 400)
-
-        musicButton = Button('MusicOn', 45, HEIGHT - 40)
-        soundButton = Button('SoundOn', 0, HEIGHT - 40)
-
-        butts = pygame.sprite.Group()
-        butts.add(ContinueButton)
-        butts.add(MenuButton)
-
-        while runningPause:
-            clock.tick(FPS)
-
-            screen.fill(BLACK)
-            screen.blit(backgr, (0, 0))
-
-            if MUSIC:
-                musicButton.kill()
-                musicButton = Button('MusicOff', 45, HEIGHT - 40)
-                if not MusicPlayer.get_busy():
-                    MusicPlayer.play(-1)
-
-            else:
-                musicButton.kill()
-                musicButton = Button('MusicOn', 45, HEIGHT - 40)
-                MusicPlayer.stop()
-
-            if SOUND:
-                soundButton.kill()
-                soundButton = Button('SoundOff', 0, HEIGHT - 40)
-            else:
-                soundButton.kill()
-                soundButton = Button('SoundOn', 0, HEIGHT - 40)
-
-            butts.add(soundButton)
-            butts.add(musicButton)
-
-            butts.draw(screen)
-
-            ShowCursor()
-            pygame.display.flip()
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    runningPause = False
-                    return True
-                if event.type == pygame.KEYDOWN:
-                    if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-                        return
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if ContinueButton.rect.collidepoint(event.pos):
-                        return
-
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if MenuButton.rect.collidepoint(event.pos):
-                        pygame.mixer.music.unpause()
-                        for elem in all_sprites:
-                            elem.kill()
-                        if StartGame():
-                            return True
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if musicButton.rect.collidepoint(event.pos):
-                        if MUSIC:
-                            MUSIC = False
-                        else:
-                            MUSIC = True
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if soundButton.rect.collidepoint(event.pos):
-                        if SOUND:
-                            SOUND = False
-                        else:
-                            SOUND = True
-
-
-    def EndGame():
-
-        global SCORE, PREV_BEST, MONEY, MONEYGET
-        font = pygame.font.Font(None, 50)
-        newBest = font.render(f"", True, (255, 216, 0))
-        money = font.render(f"Монет получено: {MONEYGET}", True, (255, 216, 0))
-        current = font.render(f"Счет: {SCORE}", True, (255, 216, 0))
-
-        if SCORE > PREV_BEST:
-            PREV_BEST = SCORE
-            newBest = font.render(f"Новый рекорд: {SCORE}!", True, (255, 216, 0))
-            current = font.render(f"", True, (255, 216, 0))
-
-        MONEY += MONEYGET
-        MONEYGET = 0
-
-        EndBackground = screen.copy()
-        runningEndGame = True
-
-        butts = pygame.sprite.Group()
-
-        MenuButton = Button('Menu', 480, 500)
-        MenuButton.rect.x = 600 - MenuButton.rect.width // 2
-        butts.add(MenuButton)
-        AgainButton = Button('Replay', 480, 400)
-        AgainButton.rect.x = 600 - AgainButton.rect.width // 2
-        butts.add(AgainButton)
-
-        while runningEndGame:
-            clock.tick(FPS)
-            screen.fill(BLACK)
-
-            screen.blit(EndBackground, (0, 0))
-
-            screen.blit(newBest, (600 - newBest.get_width() // 2, 300))
-            screen.blit(current, (600 - current.get_width() // 2, 300))
-            screen.blit(money, (600 - money.get_width() // 2, 350))
-
-            butts.draw(screen)
-
-            ShowCursor()
-            pygame.display.flip()
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    return True
-                if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-                    if StartGame():
-                        return True
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if MenuButton.rect.collidepoint(event.pos):
-                        if StartGame():
-                            return True
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if AgainButton.rect.collidepoint(event.pos):
-                        if Game():
-                            return True
-
-
+    # Задний фон меню тоже загружается один раз
     Startbackground = load_image('StartMenuFon.png')
     Startbackground2 = load_image('StartMenuFon.png')
 
@@ -636,13 +532,14 @@ if OK:
     Startbackground_rect2 = Startbackground.get_rect()
     Startbackground_rect2.x = 1500
 
-
+    # Движение фона в меню вынесено в отдельную функцию для единства фона в главном меню и меню улечшений
     def ShowStartBackground():
         Startbackground_rect.x -= 1
         Startbackground_rect2.x -= 1
 
         screen.blit(Startbackground, Startbackground_rect)
         screen.blit(Startbackground2, Startbackground_rect2)
+        # Люблю пельмени
 
         if Startbackground_rect.right == 0:
             Startbackground_rect.x = 1500
@@ -1063,6 +960,152 @@ if OK:
             pygame.display.flip()
 
 
+    def PauseGame():
+        global MUSIC, SOUND
+
+        alienpew.stop()
+        pew.stop()
+        PlayerHit.stop()
+        alienbang.stop()
+        meteorbang.stop()
+        meteorhit.stop()
+
+        backgr = screen.copy()
+        runningPause = True
+        ContinueButton = Button('Continue', 480, 300)
+        MenuButton = Button('Menu', 480, 400)
+
+        musicButton = Button('MusicOn', 45, HEIGHT - 40)
+        soundButton = Button('SoundOn', 0, HEIGHT - 40)
+
+        butts = pygame.sprite.Group()
+        butts.add(ContinueButton)
+        butts.add(MenuButton)
+
+        while runningPause:
+            clock.tick(FPS)
+
+            screen.fill(BLACK)
+            screen.blit(backgr, (0, 0))
+
+            if MUSIC:
+                musicButton.kill()
+                musicButton = Button('MusicOff', 45, HEIGHT - 40)
+                if not MusicPlayer.get_busy():
+                    MusicPlayer.play(-1)
+
+            else:
+                musicButton.kill()
+                musicButton = Button('MusicOn', 45, HEIGHT - 40)
+                MusicPlayer.stop()
+
+            if SOUND:
+                soundButton.kill()
+                soundButton = Button('SoundOff', 0, HEIGHT - 40)
+            else:
+                soundButton.kill()
+                soundButton = Button('SoundOn', 0, HEIGHT - 40)
+
+            butts.add(soundButton)
+            butts.add(musicButton)
+
+            butts.draw(screen)
+
+            ShowCursor()
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    runningPause = False
+                    return True
+                if event.type == pygame.KEYDOWN:
+                    if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                        return
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if ContinueButton.rect.collidepoint(event.pos):
+                        return
+
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if MenuButton.rect.collidepoint(event.pos):
+                        pygame.mixer.music.unpause()
+                        for elem in all_sprites:
+                            elem.kill()
+                        if StartGame():
+                            return True
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if musicButton.rect.collidepoint(event.pos):
+                        if MUSIC:
+                            MUSIC = False
+                        else:
+                            MUSIC = True
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if soundButton.rect.collidepoint(event.pos):
+                        if SOUND:
+                            SOUND = False
+                        else:
+                            SOUND = True
+
+
+    def EndGame():
+
+        global SCORE, PREV_BEST, MONEY, MONEYGET
+        font = pygame.font.Font(None, 50)
+        newBest = font.render(f"", True, (255, 216, 0))
+        money = font.render(f"Монет получено: {MONEYGET}", True, (255, 216, 0))
+        current = font.render(f"Счет: {SCORE}", True, (255, 216, 0))
+
+        if SCORE > PREV_BEST:
+            PREV_BEST = SCORE
+            newBest = font.render(f"Новый рекорд: {SCORE}!", True, (255, 216, 0))
+            current = font.render(f"", True, (255, 216, 0))
+
+        MONEY += MONEYGET
+        MONEYGET = 0
+
+        EndBackground = screen.copy()
+        runningEndGame = True
+
+        butts = pygame.sprite.Group()
+
+        MenuButton = Button('Menu', 480, 500)
+        MenuButton.rect.x = 600 - MenuButton.rect.width // 2
+        butts.add(MenuButton)
+        AgainButton = Button('Replay', 480, 400)
+        AgainButton.rect.x = 600 - AgainButton.rect.width // 2
+        butts.add(AgainButton)
+
+        while runningEndGame:
+            clock.tick(FPS)
+            screen.fill(BLACK)
+
+            screen.blit(EndBackground, (0, 0))
+
+            screen.blit(newBest, (600 - newBest.get_width() // 2, 300))
+            screen.blit(current, (600 - current.get_width() // 2, 300))
+            screen.blit(money, (600 - money.get_width() // 2, 350))
+
+            butts.draw(screen)
+
+            ShowCursor()
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return True
+                if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                    if StartGame():
+                        return True
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if MenuButton.rect.collidepoint(event.pos):
+                        if StartGame():
+                            return True
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if AgainButton.rect.collidepoint(event.pos):
+                        if Game():
+                            return True
+
+
+
     #######################################################################################################################
     # Начало работы программы
     #######################################################################################################################
@@ -1123,6 +1166,7 @@ if OK:
     pygame.quit()
 
 else:
+    # Если некоторых файлов не хватает, то появится окошко со списком недостающих файлов
     screen = pygame.display.set_mode((1200, 800))
     screen.fill((0, 0, 0))
     pygame.display.set_caption('Нехватка данных')
@@ -1134,6 +1178,3 @@ else:
     while pygame.event.wait().type != pygame.QUIT:
         pass
     pygame.quit()
-    # Коммит чиним Вадима
-    #хз зачем нам разделение работы за день до дедлайна
-    # Работаем в этой ветке товарищи
