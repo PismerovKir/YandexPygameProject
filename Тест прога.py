@@ -539,7 +539,6 @@ if OK:
 
         screen.blit(Startbackground, Startbackground_rect)
         screen.blit(Startbackground2, Startbackground_rect2)
-        # Люблю пельмени
 
         if Startbackground_rect.right == 0:
             Startbackground_rect.x = 1500
@@ -548,16 +547,19 @@ if OK:
             Startbackground_rect2.x = 1500
 
 
+    # Главное меню
     def StartGame():
 
         global MUSIC, SOUND
 
+        #Музыка
         start_sprites = pygame.sprite.Group()
         MusicPlayer.load('data/music_fon.mp3')
 
         if not MusicPlayer.get_busy():
             MusicPlayer.play(-1)
 
+        #Кнопки
         PlayButton = Button('Play', 490, 260)
         UpgradeButton = Button('Upgrade', 490, 360)
         ExitButton = Button('Exit', 490, 460)
@@ -569,6 +571,7 @@ if OK:
         start_sprites.add(UpgradeButton)
         start_sprites.add(ExitButton)
 
+        # Текст рекорда
         font = pygame.font.Font(None, 50)
         text = font.render(f"BEST : {PREV_BEST}", True, (255, 216, 0))
 
@@ -579,6 +582,7 @@ if OK:
         while runningStartGame:
             clock.tick(FPS)
 
+            # Определение кнопки музыки и звука
             if MUSIC:
                 musicButton.kill()
                 musicButton = Button('MusicOff', 45, HEIGHT - 40)
@@ -601,8 +605,10 @@ if OK:
 
             screen.fill(BLACK)
 
+            # Задний офн
             ShowStartBackground()
 
+            # Показ монеток выравнивается
             showmoney = font.render(f" : {MONEY}", True, (255, 216, 0))
             screen.blit(showmoney, (WIDTH - showmoney.get_width() - 5, 0))
             screen.blit(text, (0, 0))
@@ -611,9 +617,11 @@ if OK:
 
             start_sprites.draw(screen)
 
+            # В самом конце отображается курсор
             ShowCursor()
             pygame.display.flip()
 
+            # Ожидаем нажатия на кнопки
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return True
@@ -643,12 +651,15 @@ if OK:
                             SOUND = True
 
 
+
+    # Меню улучшений
     def UpgradeGame():
 
         global MONEY, LEVEL_SPD, LEVEL_DUR, LEVEL_DMG, SOUND
 
         upgrade_sprites = pygame.sprite.Group()
 
+        #Кнопки
         UpgradeDURButton = Button('Plus', 131, 200)
         upgrade_sprites.add(UpgradeDURButton)
 
@@ -666,6 +677,7 @@ if OK:
         textcolor = pygame.color.Color(0, 50, 255)
         # textcolor.hsva = [240, 100, 80]
 
+        # Текст и картинки
         titleDur = font.render(f"Прочность", True, textcolor)
         titleSpd = font.render(f"Скорость", True, textcolor)
         titleDmg = font.render(f"Урон", True, textcolor)
@@ -684,9 +696,11 @@ if OK:
             screen.fill(BLACK)
             ShowStartBackground()
 
+            # Бортики
             pygame.draw.line(screen, (0, 0, 0,), (400, 0), (400, HEIGHT), 2)
             pygame.draw.line(screen, (0, 0, 0,), (800, 0), (800, HEIGHT), 2)
 
+            # Отрисовка всего
             screen.blit(titleDur, (110, 100))
             screen.blit(titleSpd, (520, 100))
             screen.blit(titleDmg, (958, 100))
@@ -704,7 +718,7 @@ if OK:
             screen.blit(costDmg, (1000 - costSpd.get_size()[0] // 2, 350))
 
             currentDur = font.render(f"Текущая: {5 + LEVEL_DUR}", True, textcolor)
-            currentSpd = font.render(f"Текущая: {1 + LEVEL_SPD}", True, textcolor)
+            currentSpd = font.render(f"Текущая: {2 + LEVEL_SPD}", True, textcolor)
             currentDmg = font.render(f"Текущий: {1 + LEVEL_DMG}", True, textcolor)
 
             screen.blit(currentDur, (200 - currentDur.get_size()[0] // 2, 500))
@@ -717,9 +731,11 @@ if OK:
 
             upgrade_sprites.draw(screen)
 
+            # В конце курсор
             ShowCursor()
             pygame.display.flip()
 
+            # Ожидание кнопок
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return True
@@ -766,8 +782,10 @@ if OK:
                         return
 
 
+    # Сама игра
     def Game():
 
+        # Необходимые переменные
         global SCORE, spaceship, MUSIC, KILLEDALIENS, KILLEDMETEORS
         KILLEDALIENS = 0
         KILLEDMETEORS = 0
@@ -780,9 +798,11 @@ if OK:
         all_sprites.add(spaceship)
         prev_alien = 0
 
+        # Счетчик убитых врагов
         killedAliens = load_image('killedAliensCounter.png')
         killedMeteors = load_image('killedMeteorsCounter.png')
 
+        # Создание заднего фона
         background = load_image('fon3.png')
         background2 = load_image('fon3.png')
         background_rect = background.get_rect()
@@ -796,6 +816,7 @@ if OK:
         count = pygame.mixer.Sound('data/count.wav')
         go = pygame.mixer.Sound('data/go.wav')
 
+        # Счетчик перед началом игры
         screen.blit(background, background_rect)
         screen.blit(background2, background_rect2)
         all_sprites.draw(screen)
@@ -839,6 +860,7 @@ if OK:
             if not MUSIC:
                 MusicPlayer.stop()
 
+            # В случае смерти корабля анимация взрыва и вызов конца игры
             if spaceship.health < 1:
                 MusicPlayer.stop()
                 alienpew.stop()
@@ -880,6 +902,7 @@ if OK:
                 if EndGame():
                     return True
 
+            # Ожидание паузы Esc
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return True
@@ -888,14 +911,13 @@ if OK:
                         if PauseGame():
                             return True
 
+            # Появление метеорв(Ускоряется со временем)
             if SCORE < 60000:
                 if SCORE % (150 - (SCORE // 500)) == 0:
                     meteor = Meteor()
                     enemy.add(meteor)
                     meteors.add(meteor)
                     all_sprites.add(meteor)
-
-
             else:
                 if SCORE % 30 == 0:
                     meteor = Meteor()
