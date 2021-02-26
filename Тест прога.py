@@ -267,7 +267,7 @@ if OK:
 
             if self.deathCounter == 0:
                 KILLEDALIENS += 1
-                MONEYGET += 2 + SCORE // 25
+                MONEYGET += 2 + SCORE // 2500
                 self.kill()
 
             if self.health < 1 and self.deathCounter < 0:
@@ -584,6 +584,7 @@ if OK:
             current = font.render(f"", True, (255, 216, 0))
 
         MONEY += MONEYGET
+        MONEYGET = 0
 
         EndBackground = screen.copy()
         runningEndGame = True
