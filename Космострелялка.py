@@ -157,7 +157,7 @@ if OK:
 
             # Стрельба корабля
             if k[pygame.K_SPACE]:
-                if SCORE - self.prev_shot > 60:
+                if SCORE - self.prev_shot > 75:
                     self.prev_shot = SCORE
                     bul = LaserBulletLong(self.rect.right - 66, self.rect.top + 26)
                     all_sprites.add(bul)
@@ -330,20 +330,53 @@ if OK:
 
             if self.bumpcounter == 0:
                 self.speedy = - self.speedy
+            elif self.bumpcounter > 0:
+                if bullets:
+                    moved = False
+                    for bullet in bullets:
+                        if bullet.rect.left < self.rect.right:
+                            if bullet.rect.centery in range(self.rect.top - 20,
+                                                            self.rect.top + self.rect.height // 2 + 20):
+                                self.rect.y += self.speedy
+                            elif bullet.rect.centery in range(
+                                    self.rect.top - 20 + self.rect.height // 2,
+                                    self.rect.bottom + 20):
+                                self.rect.y -= self.speedy
+                            else:
+                                if not moved:
+                                    moved = True
+                                    if self.rect.centery < spaceship.rect.centery:
+                                        self.rect.y += self.speedy
+                                    if self.rect.centery > spaceship.rect.centery:
+                                        self.rect.y -= self.speedy
+
+                        else:
+                            if not moved:
+                                moved = True
+                                if self.rect.centery < spaceship.rect.centery:
+                                    self.rect.y += self.speedy
+                                if self.rect.centery > spaceship.rect.centery:
+                                    self.rect.y -= self.speedy
+
+                else:
+                    if self.rect.centery < spaceship.rect.centery:
+                        self.rect.y += self.speedy
+                    if self.rect.centery > spaceship.rect.centery:
+                        self.rect.y -= self.speedy
             # Есть небольшая хаотичность движений
             # Пришелец уворачивается от выстрелов игрока, попутно приближаясь к нему
             elif self.bumpcounter < 0:
-                if len(aliens) > 1:
+                if len(enemy) > 1:
                     movedmoved = False
                     for enemy1 in enemy:
                         if self != enemy1:
                             if not movedmoved:
                                 movedmoved = True
                                 if pygame.sprite.collide_mask(self, enemy1):
-                                    self.bumpcounter = 50
+                                    self.bumpcounter = 100
                                     self.speedy = - self.speedy
                                     if type(enemy1) == Alien:
-                                        enemy1.bumpcounter = 50
+                                        enemy1.bumpcounter = 100
                                         enemy1.speedy = - enemy1.speedy
                                 else:
                                     # Спидран по ии поехали
@@ -483,10 +516,10 @@ if OK:
 
             if self.deathCounter == 0:
                 KILLEDMETEORS += 1
-                MONEYGET += 1 + SCORE // 3000
                 self.kill()
             # Начало анимации взрыва
             if self.health < 1 and self.deathCounter < 0:
+                MONEYGET += 1 + SCORE // 3000
                 if SOUND:
                     meteorbang.play()
                 self.image = self.bangimage1
